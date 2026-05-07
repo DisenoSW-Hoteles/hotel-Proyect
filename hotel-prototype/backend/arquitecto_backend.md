@@ -91,3 +91,27 @@
   });
   ```
 - **Razón**: Cumplimiento de `"strict": true` en `tsconfig.json`; `unknown` es el tipo más seguro para capturar errores no tipados.
+
+### Manejo de Errores Centralizado
+
+- **Fecha**: 6 de mayo de 2026
+- **Archivos añadidos**:
+  - `src/utils/errors/AppError.ts` — Clase `AppError` que extiende `Error`, incluye propiedades `statusCode` e `isOperational = true`.
+  - `src/utils/helpers/catchAsync.ts` — HOF que envuelve handlers asíncronos de Express y delega errores a `next()`, eliminando try/catch repetitivo.
+  - `src/middleware/error/errorHandler.ts` — Middleware global de errores que:
+    - En **development**: Devuelve detalle completo del error, stack trace y objeto completo.
+    - En **production**: Si `err.isOperational === true`, devuelve `statusCode` y `message`; si no, responde con `500` y mensaje genérico ("Algo salió mal").
+- **Integración en app.ts**:
+  - Se importó `errorHandler` con extensión `.js`.
+  - Se registró como último middleware (después de todas las rutas) usando `app.use(errorHandler)`.
+- **Reglas aplicadas**:
+  - Cumple ESM Node16: todas las importaciones locales usan extensión `.js`.
+  - Tipado estricto: no se usa `any`; el middleware recibe `unknown` y lo trata con guards tipados.
+  - Clean Architecture: lógica de error encapsulada, responsabilidades separadas.
+- **Beneficios**:
+  - Evita duplicación de try/catch en controladores mediante `catchAsync`.
+  - Diferencia errores operacionales (controlados) de errores de programación (no controlados).
+  - Facilita debugging en desarrollo y seguridad en producción.
+- **Uso futuro**:
+  - Controladores envuelven handlers con `catchAsync(handler)`.
+  - Servicios lanzan `new AppError('mensaje', statusCode)` cuando detectan errores operacionales.

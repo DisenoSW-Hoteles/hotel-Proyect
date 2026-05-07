@@ -8,7 +8,8 @@ const express_1 = __importDefault(require("express"));
 const helmet_1 = __importDefault(require("helmet"));
 const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
-const healthRoutes_1 = __importDefault(require("./routes/healthRoutes"));
+const healthRoutes_js_1 = __importDefault(require("./routes/healthRoutes.js"));
+const errorHandler_js_1 = __importDefault(require("./middleware/error/errorHandler.js"));
 const app = (0, express_1.default)();
 // Swagger configuration
 const swaggerOptions = {
@@ -37,9 +38,11 @@ app.use(express_1.default.urlencoded({ extended: true }));
 // Swagger UI
 app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerSpec));
 // Routes
-app.use('/api', healthRoutes_1.default);
+app.use('/api', healthRoutes_js_1.default);
 // Health check endpoint (legacy - can be removed once routes are fully implemented)
 app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok' });
 });
+// Error handling middleware (must be last)
+app.use(errorHandler_js_1.default);
 exports.default = app;

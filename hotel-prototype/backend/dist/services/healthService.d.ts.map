@@ -1,0 +1,1 @@
+{"version":3,"file":"healthService.d.ts","sourceRoot":"","sources":["../../src/services/healthService.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,wBAAwB,CAAC;AAElD,MAAM,WAAW,cAAe,SAAQ,QAAQ;IAC9C,WAAW,IAAI,OAAO,CAAC;QAAE,MAAM,EAAE,MAAM,CAAA;KAAE,CAAC,CAAC;CAC5C;AAED,qBAAa,aAAc,YAAW,cAAc;IAC5C,WAAW,IAAI,OAAO,CAAC;QAAE,MAAM,EAAE,MAAM,CAAA;KAAE,CAAC;CAIjD"}

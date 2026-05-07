@@ -1,27 +1,27 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+// Importamos nuestros contratos de datos estrictos
+import { ConsultaDisponibilidadDTO, HabitacionDisponibleDTO } from '../models/disponibilidad.dto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DisponibilidadService {
-  // Esta URL apuntará al backend de Jaime cuando esté listo
+  // Esta URL apuntará a la API REST de Jaime
   private apiUrl = 'http://localhost:3000/api/reservas';
 
-  // DIP: Inyectamos el cliente HTTP nativo de Angular en el constructor
+  // DIP: Inyección de Dependencias del cliente HTTP
   constructor(private http: HttpClient) { }
 
-  // SRP: La única responsabilidad de este método es ir a buscar datos
-  // Usamos Observable de RxJS porque las peticiones a internet toman tiempo (asincronía)
-  buscarHabitaciones(checkIn: string, checkOut: string, huespedes: number): Observable<any> {
-    const payload = {
-      checkInDate: checkIn,
-      checkOutDate: checkOut,
-      guestsCount: huespedes
-    };
+  /**
+   * Busca las habitaciones disponibles en base a las fechas y huéspedes.
+   * Recibe nuestro DTO de consulta y retorna un Observable con un arreglo del DTO de respuesta.
+   */
+  buscarDisponibilidad(consulta: ConsultaDisponibilidadDTO): Observable<HabitacionDisponibleDTO[]> {
+    const url = `${this.apiUrl}/disponibilidad`;
     
-    // Hacemos la petición POST al backend
-    return this.http.post<any>(`${this.apiUrl}/disponibilidad`, payload);
+    // Hacemos un POST enviando los datos del huésped y tipamos la respuesta
+    return this.http.post<HabitacionDisponibleDTO[]>(url, consulta);
   }
 }

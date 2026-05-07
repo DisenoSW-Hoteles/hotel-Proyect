@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import app from './app';
-import { AppDataSource } from '@config/database';
-import { env } from '@config/environment';
+import app from './app.js';
+import { AppDataSource } from './config/database.js';
+import { env } from './config/environment.js';
 
 AppDataSource.initialize()
   .then(() => {
@@ -9,7 +9,7 @@ AppDataSource.initialize()
       console.log(`Server ready on http://localhost:${env.port}`);
     });
   })
-  .catch((error) => {
+  .catch((error: unknown) => {
     console.error('Database initialization failed', error);
     process.exit(1);
   });

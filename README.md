@@ -1,69 +1,121 @@
-# hotel-Proyect
+# 🏨 Sistema de Gestión Hotelera Centralizado (MVP)
 
-Este repositorio es para llevar el control de versiones de un trabajo de desarrollo de un programa.
-El objetivo es declarar una hipotetica problematica y una solucion para desarrollar, practicar todas las estapas de desarrollo desde la documentacion hasta el despliegue y mantenimiento.
+Este repositorio contiene el desarrollo de un Sistema de Gestión Hotelera Centralizado. El objetivo de este proyecto es abarcar el ciclo completo de desarrollo de software: desde el levantamiento de requerimientos y diseño arquitectónico, hasta el despliegue y mantenimiento, aplicando estándares de la industria y buenas prácticas de ingeniería.
 
-1.Contexto y Problemática
+## 💻 Stack Tecnológico (PEAN)
 
-1.1.Descripción del Problema y Necesidad del Sistema:
+El proyecto está construido bajo una arquitectura de software limpia utilizando las siguientes tecnologías:
 
-La presente propuesta arquitectónica se desarrolla para una cadena hotelera en fase de expan-
-sión, con presencia estratégica en las ciudades de Temuco, Pucón, Santiago y Viña del Mar. Ac-
-tualmente, el crecimiento de la cadena ha evidenciado las limitaciones de operar con sistemas de
-gestión aislados por sucursal. Esta descentralización operativa genera vulnerabilidades críticas para
-el negocio: riesgo de sobreventa de habitaciones (overbooking), tiempos de espera prolongados en
-los procesos de check-in/check-out, y pérdida de trazabilidad en la facturación de servicios adicio-
-nales (como cafetería, eventos privados y cobros por daños).
+- **Frontend:** Angular (Monorepo Workspace)
+- **Backend:** Node.js con Express
+- **Base de Datos:** PostgreSQL
+- **Lenguaje Transversal:** TypeScript (Tipado estricto en todo el stack)
 
-Adicionalmente, la gestión manual de reglas de negocio complejas —como la restricción de
-venta de alcohol a menores en eventos privados o el cálculo de recargos dinámicos— es propensa a
-errores humanos, exponiendo a la empresa a multas legales y pérdidas financieras. Por consiguiente,
-es imperativa la construcción de un sistema centralizado, escalable y de alta disponibilidad que
-unifique la operación de todas las sucursales, automatice el flujo de caja, garantice el cumplimiento
-normativo y eleve la experiencia del huésped.
+## 🏗️ Arquitectura del Sistema
 
-1.2.
-Alcance del Proyecto
+El proyecto se divide estructuralmente para garantizar el Principio de Responsabilidad Única (SRP) y la Inversión de Dependencias (DIP):
 
-El sistema propuesto abarcará la gestión integral del ciclo de vida del huésped y la administra-
-ción de los recursos hoteleros. Sus fronteras operativas incluyen:
+- **Backend (`/backend`):** API RESTful estructurada en un patrón de capas estricto (Rutas → Controladores → Servicios → Repositorios).
+- **Frontend (`/frontend`):** Monorepo de Angular que separa los dominios de seguridad:
+  - `portal-cliente`: Aplicación pública para huéspedes.
+  - `panel-admin`: Aplicación privada para la administración operativa.
+  - `shared-models`: Librería compartida para centralizar los contratos DTOs e interfaces.
+- **Database (`/database`):** Control de versiones para scripts DDL y migraciones SQL.
 
-- Gestión de Reservas y Habitaciones: Control de inventario en tiempo real para tres catego-
-  rías de habitaciones (Estándar, Plus, Suite Ejecutiva), previniendo conflictos de concurrencia.
+---
 
-- Gestión de Servicios Adicionales: Administración de modalidades de desayuno (en habita-
-  ción o cafetería) y orquestación de eventos privados en Suites Ejecutivas (con límite de 25
-  asistentes y validación legal de consumo de alcohol).
+## 1. Contexto y Problemática
 
-- Motor de Facturación Consolidada: Generación de un folio único por huésped que centra-
-  lice el costo de la habitación, consumos extra y posibles penalizaciones (daños).
+### 1.1. Necesidad del Sistema
 
-- Control de Accesos: Autenticación y autorización basada en roles (RBAC) para huéspedes,
-  recepcionistas y administradores.
+Esta propuesta arquitectónica se desarrolla para una cadena hotelera en fase de expansión, con presencia estratégica en Temuco, Pucón, Santiago y Viña del Mar. Actualmente, operar con sistemas aislados por sucursal genera vulnerabilidades críticas:
 
-  1.3.
-  Limitaciones y Exclusiones (Fuera de Alcance)
+- Riesgo de sobreventa de habitaciones (overbooking).
+- Tiempos de espera prolongados en check-in/check-out.
+- Pérdida de trazabilidad en facturación de servicios adicionales (cafetería, eventos, daños).
 
-Para mantener la alta cohesión del sistema y respetar el Principio de Responsabilidad Única
-(SRP) a nivel de arquitectura, se establecen las siguientes limitaciones:
+La gestión manual de reglas de negocio expone a la empresa a errores y multas legales. Por consiguiente, es imperativa la construcción de un sistema centralizado, escalable y de alta disponibilidad que unifique la operación, automatice el flujo de caja y eleve la experiencia del huésped.
 
-- Procesamiento de Pagos: El sistema no almacenará ni procesará directamente información
-  de tarjetas de crédito. Se integrará con una Pasarela de Pagos externa, delegando el cumpli-
-  miento estricto de la normativa PCI-DSS.
-- Emisión Tributaria: La generación legal de boletas y facturas electrónicas (DTE) será dele-
-  gada mediante integración directa a los servicios del Servicio de Impuestos Internos (SII).
-- Gestión de Recursos Humanos e Inventario Físico: El control de turnos del personal, liqui-
-  daciones de sueldo y el control de stock de insumos físicos (bodega de alimentos o limpieza)
-  quedan excluidos de esta plataforma.
+### 1.2. Alcance del Proyecto
 
-  1.4.
-  Oportunidades del Proyecto
-  La adopción de esta plataforma centralizada, construida bajo principios de Clean Architecture
-  y patrones de diseño estructurados, abre oportunidades estratégicas a mediano plazo:
+- **Gestión de Reservas y Habitaciones:** Control de inventario en tiempo real para categorías Estándar, Plus y Suite Ejecutiva, previniendo conflictos de concurrencia.
+- **Servicios Adicionales:** Administración de desayuno y orquestación de eventos privados (límite de 25 asistentes y validación legal de alcohol).
+- **Facturación Consolidada:** Generación de un folio único por huésped centralizando costos y penalizaciones.
+- **Control de Accesos:** Autenticación y autorización basada en roles (RBAC).
 
-- Escalabilidad Geográfica: La arquitectura permitirá incorporar nuevas sucursales al sistema
-  de manera transparente, sin requerir reescritura de código (cumpliendo el principio Open/-
-  Closed).
-- Minería de Datos: La centralización de la información habilitará futuros análisis de inteli-
-  gencia de negocios (BI) para predecir temporadas altas, optimizar precios (precios dinámi-
-  cos) y personalizar ofertas basadas en el historial del huésped.
+### 1.3. Limitaciones (Fuera de Alcance)
+
+Para mantener la alta cohesión del sistema, se delegan las siguientes responsabilidades:
+
+- **Procesamiento de Pagos:** Integración con Pasarela externa (cumplimiento PCI-DSS).
+- **Emisión Tributaria:** Integración directa con los servicios del SII para DTE.
+- **Recursos Humanos e Inventario:** Control de turnos y stock físico quedan excluidos.
+
+### 1.4. Oportunidades Futuras
+
+- **Escalabilidad Geográfica:** Incorporación de nuevas sucursales sin reescribir código (Principio Open/Closed).
+- **Minería de Datos:** Análisis (BI) para predecir temporadas, optimizar precios y personalizar ofertas.
+
+---
+
+## 🛠️ Flujo de Trabajo Git (Git Flow) del Equipo
+
+Para garantizar la integridad de la arquitectura y evitar conflictos, la rama `main` está **protegida**. Todo desarrollo debe seguir estrictamente este ciclo:
+
+### 1. Sincronizar el entorno local
+
+Antes de programar, descarga la versión más reciente:
+
+```bash
+git checkout main
+git pull origin main
+2. Crear una rama de trabajo aislada
+Crea una rama a partir de main. Convenciones de nombres:
+
+feat/nombre-tarea (Nuevas funcionalidades)
+
+fix/nombre-error (Corrección de bugs)
+
+refactor/nombre-componente (Mejoras de código)
+
+Bash
+git checkout -b feat/crear-endpoint-checkin
+3. Desarrollo y Commits
+Aplica principios SOLID y realiza commits atómicos:
+
+Bash
+git add .
+git commit -m "feat: agrega controlador para el check-in de huéspedes"
+4. Subir la rama al servidor remoto (Push)
+Publica tu rama local en GitHub:
+
+Bash
+git push -u origin feat/crear-endpoint-checkin
+5. Crear el Pull Request (PR)
+Ve al repositorio en GitHub.
+
+Haz clic en "Compare & pull request".
+
+Explica tu código y asigna al menos a un revisor del equipo.
+
+Haz clic en "Create pull request".
+
+6. Revisión de Código y Fusión
+El revisor asignado auditará el código:
+
+Si hay errores: Solicita cambios ("Request Changes"). El autor debe corregir, hacer commit y un nuevo push.
+
+Si es aprobado: El revisor fusiona presionando "Merge pull request".
+
+7. Limpieza local
+Una vez fusionado el PR, actualiza tu equipo y borra la rama usada:
+
+Bash
+git checkout main
+git pull origin main
+git branch -d feat/crear-endpoint-checkin
+
+***
+
+Para dejar este repositorio listo para que tus compañeros clonen y comiencen a trabajar, ¿te gustaría que agreguemos una sección final con los comandos exactos de instalación local (`npm install`, configuración del `.env` y ejecución de servidores)?
+```

@@ -1,27 +1,22 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-// Importamos nuestros contratos de datos estrictos
-import { ConsultaDisponibilidadDTO, HabitacionDisponibleDTO } from '../models/disponibilidad.dto';
+import { ConsultaDisponibilidadDTO, HabitacionDisponibleDTO, CrearReservaDTO, ReservaDTO } from 'shared-models';
+import { IDisponibilidadService } from './disponibilidad.interface';
+import { API_BASE_URL } from '../../../config/api.config';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class DisponibilidadService {
-  // Esta URL apuntará a la API REST de Jaime
-  private apiUrl = 'http://localhost:3000/api/reservas';
+@Injectable()
+export class DisponibilidadService implements IDisponibilidadService {
+  constructor(
+    private http: HttpClient,
+    @Inject(API_BASE_URL) private readonly apiUrl: string
+  ) {}
 
-  // DIP: Inyección de Dependencias del cliente HTTP
-  constructor(private http: HttpClient) { }
-
-  /**
-   * Busca las habitaciones disponibles en base a las fechas y huéspedes.
-   * Recibe nuestro DTO de consulta y retorna un Observable con un arreglo del DTO de respuesta.
-   */
   buscarDisponibilidad(consulta: ConsultaDisponibilidadDTO): Observable<HabitacionDisponibleDTO[]> {
-    const url = `${this.apiUrl}/disponibilidad`;
-    
-    // Hacemos un POST enviando los datos del huésped y tipamos la respuesta
-    return this.http.post<HabitacionDisponibleDTO[]>(url, consulta);
+    return this.http.post<HabitacionDisponibleDTO[]>(`${this.apiUrl}/reservas/disponibilidad`, consulta);
+  }
+
+  crearReserva(reserva: CrearReservaDTO): Observable<ReservaDTO> {
+    return this.http.post<ReservaDTO>(`${this.apiUrl}/reservas`, reserva);
   }
 }

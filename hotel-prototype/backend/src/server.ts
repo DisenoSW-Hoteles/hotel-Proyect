@@ -1,15 +1,22 @@
-import 'reflect-metadata';
-import app from './app.js';
+import { app } from './app.js';
 import { AppDataSource } from './config/database.js';
-import { env } from './config/environment.js';
 
-AppDataSource.initialize()
-  .then(() => {
-    app.listen(env.port, () => {
-      console.log(`Server ready on http://localhost:${env.port}`);
+const PORT = process.env.PORT || 3000;
+
+const startServer = async () => {
+  try {
+    // Primero, garantizamos la conexión a la base de datos
+    await AppDataSource.initialize();
+    console.log('📦 Conexión a PostgreSQL establecida exitosamente mediante TypeORM.');
+
+    // Luego, levantamos el servidor web
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
     });
-  })
-  .catch((error: unknown) => {
-    console.error('Database initialization failed', error);
+  } catch (error) {
+    console.error('🔥 Error fatal al conectar con la base de datos:', error);
     process.exit(1);
-  });
+  }
+};
+
+startServer();

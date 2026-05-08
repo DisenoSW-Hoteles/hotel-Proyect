@@ -1,48 +1,39 @@
+import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import express, { Application, Request, Response } from 'express';
 import helmet from 'helmet';
-import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import healthRoutes from './routes/healthRoutes';
+import swaggerJsdoc from 'swagger-jsdoc';
 
-const app: Application = express();
+import { AppError } from './utils/errors/AppError.js';
+import { errorHandler } from './middleware/error/errorHandler.js';
 
-// Swagger configuration
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Hotel Management System API',
-      version: '1.0.0',
-      description: 'Centralized Hotel Management System - Backend API',
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000',
-        description: 'Development server',
-      },
-    ],
-  },
-  apis: ['./src/routes/*.ts', './src/controllers/*.ts'], // Paths to files containing OpenAPI definitions
-};
+export const app: Application = express();
 
-const swaggerSpec = swaggerJSDoc(swaggerOptions);
-
-// Middleware
+// 1. Middlewares Globales
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// 2. Swagger (Configuración Básica)
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: { title: 'Hotel API', version: '1.0.0' },
+  },
+  apis: ['./src/routes/*.js'],
+};
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJsdoc(swaggerOptions)));
 
-// Routes
-app.use('/api', healthRoutes);
-
-// Health check endpoint (legacy - can be removed once routes are fully implemented)
-app.get('/health', (_req: Request, res: Response) => {
-  res.status(200).json({ status: 'ok' });
+// 3. Rutas de la API (Las agregaremos aquí)
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.status(200).json({ status: 'success', message: 'API operativa' });
 });
 
-export default app;
+// 4. Interceptor de Rutas Inexistentes (404)
+app.all('*', (req: Request, _res: Response, next: NextFunction) => {
+  next(new AppError(`No se puede encontrar la ruta ${req.originalUrl} en este servidor.`, 404));
+});
+
+// 5. Interceptor Global de Errores
+app.use(errorHandler);

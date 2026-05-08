@@ -1,5 +1,6 @@
 export * from './dtos/consulta-disponibilidad.dto';
 export * from './dtos/habitacion-disponible.dto';
+export * from './dtos/habitacion-catalogo.dto';
 export * from './dtos/crear-reserva.dto';
 export * from './dtos/reserva.dto';
 export * from './enums/tipo-habitacion.enum';

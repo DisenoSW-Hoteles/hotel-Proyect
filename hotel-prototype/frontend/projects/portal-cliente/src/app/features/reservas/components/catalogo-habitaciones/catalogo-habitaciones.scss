@@ -1,0 +1,162 @@
+.catalogo-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.catalogo-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.catalogo-header h1 {
+  font-size: 2rem;
+  color: #1a1a2e;
+  margin-bottom: 0.75rem;
+}
+
+.catalogo-header p {
+  color: #6c757d;
+  font-size: 1.05rem;
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+.categoria-seccion {
+  margin-bottom: 3rem;
+}
+
+.categoria-titulo {
+  font-size: 1.5rem;
+  color: #1a73e8;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tarjetas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.tarjeta {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.tarjeta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.tarjeta-destacada {
+  border-color: #ffc107;
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.3);
+}
+
+.badge-destacado {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #ffc107;
+  color: #1a1a2e;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  z-index: 1;
+}
+
+.tarjeta-imagen {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.img-placeholder {
+  font-size: 3rem;
+}
+
+.tarjeta-body {
+  padding: 1.25rem;
+}
+
+.tarjeta-body h3 {
+  font-size: 1.15rem;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+}
+
+.tarjeta-descripcion {
+  font-size: 0.875rem;
+  color: #6c757d;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.tarjeta-detalles {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.detalle {
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.tarjeta-amenities {
+  font-size: 0.85rem;
+  color: #495057;
+  margin-bottom: 1rem;
+}
+
+.tarjeta-amenities ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.6rem;
+  list-style: none;
+  padding: 0;
+  margin: 0.4rem 0 0;
+}
+
+.tarjeta-amenities li {
+  background: #e8f4f8;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: #1a73e8;
+}
+
+.btn-reservar {
+  display: block;
+  text-align: center;
+  padding: 0.6rem;
+  background: #1a73e8;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.btn-reservar:hover {
+  background: #1557b0;
+}

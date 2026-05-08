@@ -1,10 +1,19 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { TipoServicio, CrearReservaDTO, ReservaDTO } from 'shared-models';
+import { TipoServicio, CrearReservaDTO, ReservaDTO, Sucursal } from 'shared-models';
 import { IDisponibilidadService, DISPONIBILIDAD_SERVICE } from '../../services/disponibilidad.interface';
 import { ReservaEstadoService } from '../../services/reserva-estado.service';
+
+const fechaPosteriorValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const checkIn = control.get('fechaCheckIn')?.value;
+  const checkOut = control.get('fechaCheckOut')?.value;
+  if (checkIn && checkOut && new Date(checkOut) <= new Date(checkIn)) {
+    return { fechaInvalida: 'Check-out debe ser posterior a Check-in' };
+  }
+  return null;
+};
 
 @Component({
   selector: 'app-formulario-reserva',
@@ -31,18 +40,27 @@ export class FormularioReserva {
   readonly habitacion = this.reservaEstado.habitacionSeleccionada;
   readonly consulta = this.reservaEstado.consultaActual;
 
+  readonly hoy = new Date().toISOString().split('T')[0];
+
   readonly form = this.fb.nonNullable.group({
+    fechaCheckIn: ['', Validators.required],
+    fechaCheckOut: ['', Validators.required],
     huespedNombre: ['', [Validators.required, Validators.minLength(3)]],
     huespedEmail: ['', [Validators.required, Validators.email]],
     huespedTelefono: ['', [Validators.required, Validators.pattern(/^[+]?[\d\s-]{8,15}$/)]],
     servicios: this.fb.nonNullable.control<TipoServicio[]>([], { validators: [] }),
-  });
+  }, { validators: fechaPosteriorValidator });
 
   constructor() {
-    if (!this.habitacion() || !this.consulta()) {
-      this.router.navigate(['/reservas/buscar']);
+    if (this.consulta()) {
+      this.form.patchValue({
+        fechaCheckIn: this.consulta()!.fechaCheckIn,
+        fechaCheckOut: this.consulta()!.fechaCheckOut,
+      });
     }
   }
+
+  get f() { return this.form.controls; }
 
   toggleServicio(servicio: TipoServicio): void {
     const current = this.form.controls.servicios.value;
@@ -54,21 +72,23 @@ export class FormularioReserva {
   }
 
   reservar(): void {
-    if (this.form.invalid || !this.habitacion() || !this.consulta()) return;
+    if (this.form.invalid || !this.habitacion()) return;
 
     this.loading.set(true);
     this.error.set(null);
 
+    const raw = this.form.getRawValue();
+
     const payload: CrearReservaDTO = {
       habitacionId: this.habitacion()!.id,
-      sucursalId: this.consulta()!.sucursalId,
-      fechaCheckIn: this.consulta()!.fechaCheckIn,
-      fechaCheckOut: this.consulta()!.fechaCheckOut,
-      cantidadHuespedes: this.consulta()!.cantidadHuespedes,
-      huespedNombre: this.form.getRawValue().huespedNombre,
-      huespedEmail: this.form.getRawValue().huespedEmail,
-      huespedTelefono: this.form.getRawValue().huespedTelefono,
-      servicios: this.form.getRawValue().servicios,
+      sucursalId: this.consulta()?.sucursalId ?? Sucursal.Santiago,
+      fechaCheckIn: raw.fechaCheckIn,
+      fechaCheckOut: raw.fechaCheckOut,
+      cantidadHuespedes: this.consulta()?.cantidadHuespedes ?? 1,
+      huespedNombre: raw.huespedNombre,
+      huespedEmail: raw.huespedEmail,
+      huespedTelefono: raw.huespedTelefono,
+      servicios: raw.servicios,
     };
 
     this.disponibilidadService.crearReserva(payload).subscribe({
@@ -86,6 +106,6 @@ export class FormularioReserva {
 
   nuevaReserva(): void {
     this.reservaEstado.limpiar();
-    this.router.navigate(['/reservas/buscar']);
+    this.router.navigate(['/reservas/catalogo']);
   }
 }

@@ -26,10 +26,32 @@
     }
 
     <form [formGroup]="form" (ngSubmit)="reservar()" class="reserva-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="checkIn">Check-in</label>
+          <input id="checkIn" type="date" formControlName="fechaCheckIn" [min]="hoy" />
+          @if (f.fechaCheckIn.touched && f.fechaCheckIn.invalid) {
+            <span class="error-text">Fecha requerida</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="checkOut">Check-out</label>
+          <input id="checkOut" type="date" formControlName="fechaCheckOut" [min]="f.fechaCheckIn.value || hoy" />
+          @if (f.fechaCheckOut.touched && f.fechaCheckOut.invalid) {
+            <span class="error-text">Fecha requerida</span>
+          }
+        </div>
+      </div>
+
+      @if (form.errors?.['fechaInvalida'] && (f.fechaCheckOut.touched || f.fechaCheckIn.touched)) {
+        <div class="error-mensaje">Check-out debe ser posterior a Check-in</div>
+      }
+
       <div class="form-group">
         <label for="nombre">Nombre completo</label>
         <input id="nombre" type="text" formControlName="huespedNombre" placeholder="Ej: Juan Pérez" />
-        @if (form.controls.huespedNombre.touched && form.controls.huespedNombre.invalid) {
+        @if (f.huespedNombre.touched && f.huespedNombre.invalid) {
           <span class="error-text">Nombre requerido (mín. 3 caracteres)</span>
         }
       </div>
@@ -37,7 +59,7 @@
       <div class="form-group">
         <label for="email">Correo electrónico</label>
         <input id="email" type="email" formControlName="huespedEmail" placeholder="ejemplo@correo.com" />
-        @if (form.controls.huespedEmail.touched && form.controls.huespedEmail.invalid) {
+        @if (f.huespedEmail.touched && f.huespedEmail.invalid) {
           <span class="error-text">Ingresa un email válido</span>
         }
       </div>
@@ -45,7 +67,7 @@
       <div class="form-group">
         <label for="telefono">Teléfono</label>
         <input id="telefono" type="tel" formControlName="huespedTelefono" placeholder="+56 9 1234 5678" />
-        @if (form.controls.huespedTelefono.touched && form.controls.huespedTelefono.invalid) {
+        @if (f.huespedTelefono.touched && f.huespedTelefono.invalid) {
           <span class="error-text">Ingresa un teléfono válido (8-15 dígitos)</span>
         }
       </div>
@@ -57,7 +79,7 @@
             <label class="servicio-item">
               <input
                 type="checkbox"
-                [checked]="form.controls.servicios.value.includes(s.value)"
+                [checked]="f.servicios.value.includes(s.value)"
                 (change)="toggleServicio(s.value)"
               />
               {{ s.label }}
@@ -78,7 +100,7 @@
         }
       </button>
 
-      <a routerLink="/reservas/buscar" class="btn-link">Volver a buscar</a>
+      <a routerLink="/reservas/catalogo" class="btn-link">Ver catálogo de habitaciones</a>
     </form>
   </div>
 }

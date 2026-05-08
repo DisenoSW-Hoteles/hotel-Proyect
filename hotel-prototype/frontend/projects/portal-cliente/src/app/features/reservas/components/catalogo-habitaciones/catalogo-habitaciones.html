@@ -1,0 +1,47 @@
+<div class="catalogo-container">
+  <div class="catalogo-header">
+    <h1>Nuestras Habitaciones</h1>
+    <p>Descubre la experiencia hotelera que hemos preparado para ti. Contamos con tres categorías diseñadas para satisfacer cada necesidad y presupuesto.</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">Cargando catálogo...</div>
+  }
+
+  @if (!loading()) {
+    @for (tipo of [TipoHabitacion.Estandar, TipoHabitacion.Plus, TipoHabitacion.SuiteEjecutiva]; track tipo) {
+      <section class="categoria-seccion">
+        <h2 class="categoria-titulo">{{ tipo }}</h2>
+        <div class="tarjetas-grid">
+          @for (h of porTipo(tipo); track h.id) {
+            <div class="tarjeta" [class.tarjeta-destacada]="h.destacado">
+              @if (h.destacado) {
+                <span class="badge-destacado">Recomendado</span>
+              }
+              <div class="tarjeta-imagen">
+                <div class="img-placeholder">{{ h.tipo === TipoHabitacion.Estandar ? '🛏️' : h.tipo === TipoHabitacion.Plus ? '⭐' : '👑' }}</div>
+              </div>
+              <div class="tarjeta-body">
+                <h3>{{ h.titulo }}</h3>
+                <p class="tarjeta-descripcion">{{ h.descripcion }}</p>
+                <div class="tarjeta-detalles">
+                  <span class="detalle"><strong>Capacidad:</strong> hasta {{ h.capacidadMaxima }} persona(s)</span>
+                  <span class="detalle"><strong>Precio base:</strong> ${{ h.precioBasePorNoche | number }} / noche</span>
+                </div>
+                <div class="tarjeta-amenities">
+                  <strong>Servicios incluidos:</strong>
+                  <ul>
+                    @for (a of h.amenities; track a) {
+                      <li>{{ a }}</li>
+                    }
+                  </ul>
+                </div>
+                <a [routerLink]="['/reservas/buscar']" class="btn-reservar">Reservar ahora</a>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

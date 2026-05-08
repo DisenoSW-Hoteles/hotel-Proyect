@@ -1,23 +1,24 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { SharedModels } from './shared-models';
+import { TipoHabitacion } from './enums/tipo-habitacion.enum';
+import { Sucursal } from './enums/sucursal.enum';
+import { TipoServicio } from './enums/tipo-servicio.enum';
 
 describe('SharedModels', () => {
-  let component: SharedModels;
-  let fixture: ComponentFixture<SharedModels>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [SharedModels]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(SharedModels);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+  it('TipoHabitacion enum should have expected values', () => {
+    expect(TipoHabitacion.Estandar).toBe('Estandar');
+    expect(TipoHabitacion.Plus).toBe('Plus');
+    expect(TipoHabitacion.SuiteEjecutiva).toBe('SuiteEjecutiva');
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('Sucursal enum should have expected values', () => {
+    expect(Sucursal.Temuco).toBe('Temuco');
+    expect(Sucursal.Pucon).toBe('Pucon');
+    expect(Sucursal.Santiago).toBe('Santiago');
+    expect(Sucursal.VinaDelMar).toBe('VinaDelMar');
+  });
+
+  it('TipoServicio enum should have expected values', () => {
+    expect(TipoServicio.DesayunoHabitacion).toBe('DesayunoHabitacion');
+    expect(TipoServicio.DesayunoCafeteria).toBe('DesayunoCafeteria');
+    expect(TipoServicio.EventoPrivado).toBe('EventoPrivado');
   });
 });

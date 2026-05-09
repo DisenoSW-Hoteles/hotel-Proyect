@@ -1,0 +1,173 @@
+.formulario-container,
+.confirmacion-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+  color: #1a1a2e;
+}
+
+.resumen-habitacion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #e8f4f8;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.resumen-tipo {
+  font-weight: 700;
+  color: #1a73e8;
+}
+
+.resumen-precio {
+  font-weight: 700;
+  color: #2d6a4f;
+}
+
+.reserva-form {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.form-group input {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+}
+
+.error-text {
+  font-size: 0.8rem;
+  color: #dc3545;
+}
+
+.servicios-opciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.servicio-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.error-mensaje {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: #f8d7da;
+  color: #721c24;
+  border-radius: 8px;
+}
+
+.btn-primary {
+  width: 100%;
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #1557b0;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-link {
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  color: #6c757d;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.btn-link:hover {
+  color: #1a73e8;
+}
+
+.confirmacion-card {
+  background: #fff;
+  border: 2px solid #2d6a4f;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.confirmacion-icono {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #2d6a4f;
+  color: #fff;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.confirmacion-id {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a73e8;
+  margin-bottom: 1rem;
+}
+
+.confirmacion-detalles {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.detalle {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detalle span:first-child {
+  font-weight: 600;
+  color: #495057;
+}

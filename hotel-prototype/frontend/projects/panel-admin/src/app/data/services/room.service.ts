@@ -4,23 +4,21 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Room } from '../../core/models';
-import {
-  RoomResponseDto,
-  UpdateRoomRateRequestDto,
-  mapRoomDtoToDomain,
-} from '../models';
+import { RoomResponseDto, UpdateRoomRateDto, mapRoomDtoToDomain } from '../dtos';
 
 export interface RoomState {
   rooms: Room[];
   selectedRoom: Room | null;
   isLoading: boolean;
+  isSaving: boolean;
   error: string | null;
 }
 
-const INITIAL_ROOM_STATE: RoomState = {
+const INITIAL_STATE: RoomState = {
   rooms: [],
   selectedRoom: null,
   isLoading: false,
+  isSaving: false,
   error: null,
 };
 
@@ -28,21 +26,25 @@ const INITIAL_ROOM_STATE: RoomState = {
 export class RoomService {
   private readonly apiUrl = `${environment.apiBaseUrl}/rooms`;
 
-  private readonly _state$ = new BehaviorSubject<RoomState>(INITIAL_ROOM_STATE);
+  private readonly _state$ = new BehaviorSubject<RoomState>(INITIAL_STATE);
 
-  readonly state$ = this._state$.asObservable();
-  readonly rooms$ = this.state$.pipe(map((state) => state.rooms));
-  readonly selectedRoom$ = this.state$.pipe(map((state) => state.selectedRoom));
+  readonly state$: Observable<RoomState> = this._state$.asObservable();
+
+  readonly rooms$: Observable<Room[]> = this.state$.pipe(map((s) => s.rooms));
+
+  readonly selectedRoom$: Observable<Room | null> = this.state$.pipe(
+    map((s) => s.selectedRoom)
+  );
 
   constructor(private readonly http: HttpClient) {}
 
   loadRooms(branch?: string): Observable<Room[]> {
     this._patchState({ isLoading: true, error: null });
 
-    const params = branch ? { branch } : undefined;
+    const params = branch ? `?branch=${branch}` : '';
 
     return this.http
-      .get<RoomResponseDto[]>(this.apiUrl, { params })
+      .get<RoomResponseDto[]>(`${this.apiUrl}${params}`)
       .pipe(
         map((dtos) => dtos.map(mapRoomDtoToDomain)),
         tap((rooms) => {
@@ -55,33 +57,25 @@ export class RoomService {
       );
   }
 
-  updateBaseRate(request: UpdateRoomRateRequestDto): Observable<Room> {
-    this._patchState({ isLoading: true, error: null });
+  updateBaseRate(dto: UpdateRoomRateDto): Observable<Room> {
+    this._patchState({ isSaving: true, error: null });
 
     return this.http
-      .patch<RoomResponseDto>(`${this.apiUrl}/${request.room_id}/base-rate`, request)
+      .patch<RoomResponseDto>(`${this.apiUrl}/${dto.room_id}/rate`, dto)
       .pipe(
         map(mapRoomDtoToDomain),
         tap((updatedRoom) => {
-          const { rooms, selectedRoom } = this._state$.getValue();
-          this._patchState({
-            rooms: rooms.map((room) =>
-              room.id === updatedRoom.id ? updatedRoom : room
-            ),
-            selectedRoom:
-              selectedRoom?.id === updatedRoom.id ? updatedRoom : selectedRoom,
-            isLoading: false,
-          });
+          const currentRooms = this._state$.getValue().rooms;
+          const updatedRooms = currentRooms.map((r) =>
+            r.id === updatedRoom.id ? updatedRoom : r
+          );
+          this._patchState({ rooms: updatedRooms, isSaving: false });
         }),
         catchError((error) => {
-          this._patchState({ isLoading: false, error: 'Error al actualizar la tarifa.' });
+          this._patchState({ isSaving: false, error: 'Error al actualizar la tarifa.' });
           return throwError(() => error);
         })
       );
-  }
-
-  selectRoom(room: Room): void {
-    this._patchState({ selectedRoom: room });
   }
 
   private _patchState(patch: Partial<RoomState>): void {

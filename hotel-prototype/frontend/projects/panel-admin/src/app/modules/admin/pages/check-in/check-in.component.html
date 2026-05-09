@@ -1,0 +1,358 @@
+<!-- check-in.component.html -->
+
+<div class="checkin-wrapper">
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="header-icon">
+      <span class="material-icons">login</span>
+    </div>
+    <div>
+      <h1>Check-in</h1>
+      <p>Registro de entrada de huéspedes</p>
+    </div>
+
+    <!-- Stepper -->
+    <nav class="stepper" aria-label="Pasos del check-in">
+      <div class="step" [class.active]="currentStep === 'SEARCH'" [class.done]="currentStep !== 'SEARCH'">
+        <span class="step-num">1</span> Buscar Reserva
+      </div>
+      <div class="step-divider"></div>
+      <div class="step" [class.active]="currentStep === 'COMPANIONS'" [class.done]="currentStep === 'CONFIRM' || currentStep === 'SUCCESS'">
+        <span class="step-num">2</span> Acompañantes
+      </div>
+      <div class="step-divider"></div>
+      <div class="step" [class.active]="currentStep === 'CONFIRM'" [class.done]="currentStep === 'SUCCESS'">
+        <span class="step-num">3</span> Confirmar
+      </div>
+    </nav>
+  </header>
+
+  <!-- Errores globales del servicio -->
+  <ng-container *ngIf="reservationState$ | async as state">
+    <div *ngIf="state.error" class="alert alert--error" role="alert">
+      <span class="material-icons">error_outline</span>
+      {{ state.error }}
+    </div>
+  </ng-container>
+
+  <!-- =========================================================
+       PASO 1: BÚSQUEDA DE RESERVA
+       ========================================================= -->
+  <section *ngIf="currentStep === 'SEARCH'" class="card" aria-labelledby="search-heading">
+    <h2 id="search-heading" class="card__title">Buscar Reserva</h2>
+
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()" novalidate>
+      <div class="toggle-group" role="group" aria-label="Tipo de búsqueda">
+        <label class="toggle-option" [class.active]="searchType === 'CODE'">
+          <input type="radio" formControlName="searchType" value="CODE"
+                 (change)="searchType = 'CODE'" />
+          <span class="material-icons">confirmation_number</span>
+          Por Código de Reserva
+        </label>
+        <label class="toggle-option" [class.active]="searchType === 'DOCUMENT'">
+          <input type="radio" formControlName="searchType" value="DOCUMENT"
+                 (change)="searchType = 'DOCUMENT'" />
+          <span class="material-icons">badge</span>
+          Por RUT / Pasaporte
+        </label>
+      </div>
+
+      <div class="form-field">
+        <label for="searchValue">
+          {{ searchType === 'CODE' ? 'Código de Confirmación' : 'RUT o Número de Pasaporte' }}
+        </label>
+        <div class="input-wrapper">
+          <span class="material-icons input-icon">search</span>
+          <input
+            id="searchValue"
+            type="text"
+            formControlName="searchValue"
+            [placeholder]="searchType === 'CODE' ? 'Ej: HTL-2024-00123' : 'Ej: 12.345.678-9'"
+            class="input"
+            [class.input--error]="searchForm.get('searchValue')?.invalid && searchForm.get('searchValue')?.touched"
+          />
+        </div>
+        <span
+          *ngIf="searchForm.get('searchValue')?.invalid && searchForm.get('searchValue')?.touched"
+          class="field-error"
+        >
+          Ingrese un valor de búsqueda válido.
+        </span>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn--primary"
+        [disabled]="(reservationState$ | async)?.isLoading"
+      >
+        <span *ngIf="(reservationState$ | async)?.isLoading" class="spinner"></span>
+        <span class="material-icons" *ngIf="!(reservationState$ | async)?.isLoading">search</span>
+        {{ (reservationState$ | async)?.isLoading ? 'Buscando...' : 'Buscar Reserva' }}
+      </button>
+    </form>
+
+    <ng-container *ngIf="(reservationState$ | async)?.searchResults?.length">
+      <div class="search-results">
+        <h3>Reservas encontradas</h3>
+        <div
+          *ngFor="let res of (reservationState$ | async)?.searchResults"
+          class="reservation-card"
+          (click)="onSelectReservation(res)"
+          role="button"
+          tabindex="0"
+          (keyup.enter)="onSelectReservation(res)"
+        >
+          <div class="reservation-card__code">{{ res.confirmationCode }}</div>
+          <div class="reservation-card__info">
+            <strong>{{ res.guest.firstName }} {{ res.guest.lastName }}</strong>
+            <span>Hab. {{ res.room.number }} · {{ res.checkInDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <span class="badge badge--{{ res.status.toLowerCase() }}">{{ res.status }}</span>
+        </div>
+      </div>
+    </ng-container>
+  </section>
+
+  <!-- =========================================================
+       PASO 2: REGISTRO DE ACOMPAÑANTES (RN-26)
+       ========================================================= -->
+  <section *ngIf="currentStep === 'COMPANIONS'" class="card" aria-labelledby="companions-heading">
+
+    <ng-container *ngIf="activeReservation$ | async as reservation">
+      <div class="reservation-summary">
+        <div class="summary-badge">
+          <span class="material-icons">hotel</span>
+          Habitación {{ reservation.room.number }}
+        </div>
+        <div class="summary-info">
+          <h2 id="companions-heading">
+            {{ reservation.guest.firstName }} {{ reservation.guest.lastName }}
+          </h2>
+          <p>
+            <strong>Código:</strong> {{ reservation.confirmationCode }} &nbsp;|&nbsp;
+            <strong>Tipo:</strong> {{ reservation.room.type }} &nbsp;|&nbsp;
+            <strong>Check-out:</strong> {{ reservation.checkOutDate | date:'dd/MM/yyyy' }}
+          </p>
+          <p *ngIf="reservation.specialRequests" class="special-requests">
+            <span class="material-icons">note</span>
+            {{ reservation.specialRequests }}
+          </p>
+        </div>
+
+        <div class="companions-counter">
+          <div class="counter-value" [class.counter--ok]="rn26ValidationResult?.isValid"
+               [class.counter--warning]="!rn26ValidationResult?.isValid">
+            {{ companionsArray.length }} / {{ reservation.declaredCompanions }}
+          </div>
+          <div class="counter-label">Acompañantes registrados / declarados</div>
+        </div>
+      </div>
+
+      <div
+        *ngIf="rn26ValidationResult && !rn26ValidationResult.isValid"
+        class="alert alert--warning"
+        role="alert"
+      >
+        <span class="material-icons">warning</span>
+        <div>
+          <strong>Regla RN-26:</strong> No se puede completar el check-in.
+          <ul>
+            <li *ngIf="rn26ValidationResult.missingCompanions > 0">
+              Faltan <strong>{{ rn26ValidationResult.missingCompanions }}</strong>
+              acompañante(s) por registrar.
+            </li>
+            <li *ngFor="let name of rn26ValidationResult.companionsWithoutDocument">
+              <strong>{{ name }}</strong> no tiene documento de identidad registrado.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <form [formGroup]="checkInForm" novalidate>
+      <div formArrayName="companions">
+        <div
+          *ngFor="let companion of companionsArray.controls; let i = index"
+          [formGroupName]="i"
+          class="companion-card"
+        >
+          <div class="companion-card__header">
+            <span class="material-icons">person</span>
+            <h4>Acompañante {{ i + 1 }}</h4>
+            <button
+              type="button"
+              class="btn btn--icon btn--danger"
+              (click)="removeCompanion(i)"
+              aria-label="Eliminar acompañante"
+            >
+              <span class="material-icons">remove_circle</span>
+            </button>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label [for]="'firstName_' + i">Nombre *</label>
+              <input
+                [id]="'firstName_' + i"
+                type="text"
+                formControlName="firstName"
+                class="input"
+                [class.input--error]="companion.get('firstName')?.invalid && companion.get('firstName')?.touched"
+                placeholder="Nombre(s)"
+              />
+              <span *ngIf="companion.get('firstName')?.errors?.['required'] && companion.get('firstName')?.touched"
+                    class="field-error">Requerido</span>
+            </div>
+
+            <div class="form-field">
+              <label [for]="'lastName_' + i">Apellido *</label>
+              <input
+                [id]="'lastName_' + i"
+                type="text"
+                formControlName="lastName"
+                class="input"
+                [class.input--error]="companion.get('lastName')?.invalid && companion.get('lastName')?.touched"
+                placeholder="Apellido(s)"
+              />
+              <span *ngIf="companion.get('lastName')?.errors?.['required'] && companion.get('lastName')?.touched"
+                    class="field-error">Requerido</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field form-field--narrow">
+              <label [for]="'docType_' + i">Tipo Doc. *</label>
+              <select
+                [id]="'docType_' + i"
+                formControlName="documentType"
+                class="input"
+                (change)="onDocumentTypeChange(i)"
+              >
+                <option value="RUT">RUT (Chile)</option>
+                <option value="PASSPORT">Pasaporte</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label [for]="'docNumber_' + i">
+                {{ companion.get('documentType')?.value === 'RUT' ? 'RUT *' : 'N° Pasaporte *' }}
+              </label>
+              <input
+                [id]="'docNumber_' + i"
+                type="text"
+                formControlName="documentNumber"
+                class="input"
+                [class.input--error]="companion.get('documentNumber')?.invalid && companion.get('documentNumber')?.touched"
+                [placeholder]="companion.get('documentType')?.value === 'RUT' ? '12.345.678-9' : 'AB123456'"
+              />
+              <span *ngIf="companion.get('documentNumber')?.errors?.['required'] && companion.get('documentNumber')?.touched"
+                    class="field-error">Documento requerido</span>
+              <span *ngIf="companion.get('documentNumber')?.errors?.['invalidRut'] && companion.get('documentNumber')?.touched"
+                    class="field-error">RUT inválido</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn--secondary btn--add" (click)="addCompanionForm()">
+        <span class="material-icons">person_add</span>
+        Agregar Acompañante
+      </button>
+    </form>
+
+    <div class="card__footer">
+      <button type="button" class="btn btn--ghost" (click)="currentStep = 'SEARCH'">
+        <span class="material-icons">arrow_back</span> Volver
+      </button>
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="onProceedToConfirm()"
+        [disabled]="checkInForm.invalid || !rn26ValidationResult?.isValid"
+      >
+        Continuar
+        <span class="material-icons">arrow_forward</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       PASO 3: CONFIRMACIÓN FINAL
+       ========================================================= -->
+  <section *ngIf="currentStep === 'CONFIRM'" class="card" aria-labelledby="confirm-heading">
+    <h2 id="confirm-heading" class="card__title">Confirmar Check-in</h2>
+
+    <ng-container *ngIf="activeReservation$ | async as reservation">
+      <div class="confirm-summary">
+        <div class="confirm-row">
+          <span class="material-icons">person</span>
+          <strong>Huésped Principal:</strong>
+          {{ reservation.guest.firstName }} {{ reservation.guest.lastName }}
+          ({{ reservation.guest.documentNumber }})
+        </div>
+        <div class="confirm-row">
+          <span class="material-icons">hotel</span>
+          <strong>Habitación:</strong> {{ reservation.room.number }} —
+          {{ reservation.room.type }}
+        </div>
+        <div class="confirm-row">
+          <span class="material-icons">calendar_today</span>
+          <strong>Check-out esperado:</strong> {{ reservation.checkOutDate | date:'dd/MM/yyyy' }}
+        </div>
+        <div class="confirm-row">
+          <span class="material-icons">group</span>
+          <strong>Acompañantes:</strong> {{ companionsArray.length }}
+        </div>
+      </div>
+
+      <div class="legal-notice">
+        <span class="material-icons">security</span>
+        Los datos personales de los huéspedes son tratados conforme a la
+        <strong>Ley 19.628 de Protección de Datos Personales</strong> de Chile.
+      </div>
+    </ng-container>
+
+    <div class="card__footer">
+      <button type="button" class="btn btn--ghost" (click)="currentStep = 'COMPANIONS'">
+        <span class="material-icons">arrow_back</span> Volver
+      </button>
+      <button
+        type="button"
+        class="btn btn--success"
+        (click)="onConfirmCheckIn()"
+        [disabled]="(reservationState$ | async)?.isProcessing"
+      >
+        <span *ngIf="(reservationState$ | async)?.isProcessing" class="spinner spinner--white"></span>
+        <span class="material-icons" *ngIf="!(reservationState$ | async)?.isProcessing">check_circle</span>
+        {{ (reservationState$ | async)?.isProcessing ? 'Procesando...' : 'Confirmar Check-in' }}
+      </button>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       PASO 4: CHECK-IN EXITOSO
+       ========================================================= -->
+  <section *ngIf="currentStep === 'SUCCESS'" class="card card--success" aria-live="polite">
+    <div class="success-illustration">
+      <span class="material-icons success-icon">check_circle</span>
+    </div>
+    <h2>¡Check-in Completado!</h2>
+    <ng-container *ngIf="activeReservation$ | async as reservation">
+      <p>
+        <strong>{{ reservation.guest.firstName }} {{ reservation.guest.lastName }}</strong>
+        ha ingresado a la habitación <strong>{{ reservation.room.number }}</strong>.
+      </p>
+      <p class="checkout-reminder">
+        Check-out programado: <strong>{{ reservation.checkOutDate | date:'EEEE dd/MM/yyyy' }}</strong>
+        (Hora límite: 12:00 hrs)
+      </p>
+    </ng-container>
+    <button type="button" class="btn btn--primary" (click)="onStartNewCheckIn()">
+      <span class="material-icons">add</span>
+      Nuevo Check-in
+    </button>
+  </section>
+
+</div>

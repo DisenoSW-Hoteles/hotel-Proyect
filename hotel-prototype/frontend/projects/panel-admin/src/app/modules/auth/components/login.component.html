@@ -1,0 +1,106 @@
+<div class="login-page">
+
+  <div class="login-brand">
+    <div class="brand-logo">
+      <span class="material-icons">hotel</span>
+    </div>
+    <h1>Hotel Admin</h1>
+    <p>Panel de Gestión Hotelera</p>
+  </div>
+
+  <div class="login-card">
+    <h2>Iniciar Sesión</h2>
+    <p class="login-subtitle">Ingrese sus credenciales para continuar</p>
+
+    <ng-container *ngIf="authState$ | async as authState">
+      <div *ngIf="authState.error" class="alert alert--error" role="alert">
+        <span class="material-icons">error_outline</span>
+        {{ authState.error }}
+      </div>
+    </ng-container>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+      <div class="form-field">
+        <label for="email">Correo Electrónico</label>
+        <div class="input-wrapper">
+          <span class="material-icons input-icon">email</span>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="input"
+            [class.input--error]="!!getFieldError('email')"
+            placeholder="recepcion@hotel.cl"
+            autocomplete="email"
+          />
+        </div>
+        <span *ngIf="getFieldError('email')" class="field-error">
+          {{ getFieldError('email') }}
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="password">Contraseña</label>
+        <div class="input-wrapper">
+          <span class="material-icons input-icon">lock</span>
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            class="input"
+            [class.input--error]="!!getFieldError('password')"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            class="input-toggle"
+            (click)="showPassword = !showPassword"
+            [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
+            <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+        <span *ngIf="getFieldError('password')" class="field-error">
+          {{ getFieldError('password') }}
+        </span>
+      </div>
+
+      <!-- Recordar sesión -->
+      <label class="remember-me">
+        <input type="checkbox" formControlName="rememberMe" />
+        <span>Mantener sesión iniciada</span>
+      </label>
+
+      <button
+        type="submit"
+        class="btn btn--primary btn--full"
+        style="margin-top: 1.25rem;"
+        [disabled]="(authState$ | async)?.isLoading"
+      >
+        <span *ngIf="(authState$ | async)?.isLoading" class="spinner"></span>
+        <span class="material-icons" *ngIf="!(authState$ | async)?.isLoading">login</span>
+        {{ (authState$ | async)?.isLoading ? 'Ingresando...' : 'Ingresar' }}
+      </button>
+
+    </form>
+
+    <!-- Separador -->
+    <div class="login-divider">
+      <span>o</span>
+    </div>
+
+    <!-- Modo prueba -->
+    <button type="button" class="btn btn--secondary btn--full" (click)="onDemoLogin()">
+      <span class="material-icons">science</span>
+      Entrar en modo prueba
+    </button>
+
+    <div class="login-footer">
+      <span class="material-icons">security</span>
+      Acceso protegido — solo personal autorizado
+    </div>
+  </div>
+
+</div>

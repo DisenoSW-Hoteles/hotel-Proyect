@@ -1,3 +1,15 @@
+// =============================================================================
+// RESERVATION SERVICE
+// Decisión Arquitectónica: Gestiona el estado de la reserva activa durante el
+// proceso de Check-in. Contiene la validación de la RN-26 (regla de negocio
+// sobre acompañantes) para mantenerla centralizada y reutilizable.
+//
+// Por qué en el servicio y no en el componente:
+// - Un validador de formulario reactivo de Angular puede llamar a este servicio
+// - Un test unitario puede validar la RN-26 sin instanciar ningún componente
+// - Si la regla cambia, se modifica en un solo lugar
+// =============================================================================
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
@@ -9,11 +21,13 @@ import {
   CompanionDto,
   ReservationResponseDto,
   mapReservationDtoToDomain,
-} from '../models';
+} from '../dtos';
 
 export interface CheckInValidationResult {
   isValid: boolean;
+  /** RN-26: Los acompañantes registrados deben igualar los declarados */
   missingCompanions: number;
+  /** Todos los acompañantes deben tener documento de identidad */
   companionsWithoutDocument: string[];
 }
 
@@ -39,14 +53,13 @@ export class ReservationService {
 
   private readonly _state$ = new BehaviorSubject<ReservationState>(INITIAL_STATE);
 
-  readonly state$ = this._state$.asObservable();
-  readonly activeReservation$ = this.state$.pipe(map((s) => s.activeReservation));
+  readonly state$: Observable<ReservationState> = this._state$.asObservable();
+
+  readonly activeReservation$: Observable<Reservation | null> = this.state$.pipe(
+    map((s) => s.activeReservation)
+  );
 
   constructor(private readonly http: HttpClient) {}
-
-  getCurrentReservation(): Reservation | null {
-    return this._state$.getValue().activeReservation;
-  }
 
   searchByCode(confirmationCode: string): Observable<Reservation> {
     this._patchState({ isLoading: true, error: null });
@@ -86,6 +99,13 @@ export class ReservationService {
       );
   }
 
+  /**
+   * RN-26: Valida que los acompañantes registrados coincidan con los declarados
+   * y que todos tengan documento de identidad registrado.
+   *
+   * Esta función es PURA — no tiene efectos secundarios y puede ser invocada
+   * tanto desde componentes como desde validadores de formulario reactivos.
+   */
   validateCheckInCompanions(
     reservation: Reservation,
     companions: Companion[]
@@ -94,6 +114,7 @@ export class ReservationService {
     const declaredCount = reservation.declaredCompanions;
     const missingCompanions = Math.max(0, declaredCount - registeredCount);
 
+    // Verificar que todos los acompañantes tienen documento
     const companionsWithoutDocument = companions
       .filter((c) => !c.documentNumber || c.documentNumber.trim() === '')
       .map((c) => `${c.firstName} ${c.lastName}`);
@@ -105,6 +126,11 @@ export class ReservationService {
     };
   }
 
+  /**
+   * Ejecuta el check-in en el servidor.
+   * Pre-condición: validateCheckInCompanions debe retornar isValid: true.
+   * El componente es responsable de no llamar a este método si la validación falla.
+   */
   executeCheckIn(
     reservation: Reservation,
     companions: Companion[],

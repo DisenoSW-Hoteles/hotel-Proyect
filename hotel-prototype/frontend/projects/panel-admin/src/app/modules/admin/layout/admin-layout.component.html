@@ -1,0 +1,104 @@
+<!--
+  ADMIN LAYOUT
+  Usa `currentUser$ | async as user` para suscribirse UNA vez al Observable
+  y mostrar nombre/rol en la topbar sin múltiples subscripciones.
+
+  `routerLinkActive="active"` aplica la clase CSS cuando la ruta está activa.
+  `[routerLinkActiveOptions]="{ exact: false }"` permite que /admin/front-desk/check-in
+  marque activo el enlace aun cuando el path tenga segmentos adicionales.
+-->
+<ng-container *ngIf="currentUser$ | async as user">
+
+  <!-- ══ TOPBAR ══════════════════════════════════════════════════════════════ -->
+  <header class="admin-topbar" role="banner">
+
+    <!-- Marca / Logo -->
+    <a class="topbar-brand" routerLink="/admin/front-desk/check-in" aria-label="Inicio del panel">
+      <span class="material-icons topbar-brand__icon">hotel</span>
+      <span class="topbar-brand__name">Hotel Admin</span>
+    </a>
+
+    <!-- Navegación principal (desktop) -->
+    <nav class="topbar-nav" role="navigation" aria-label="Menú principal">
+      <a
+        *ngFor="let item of navItems"
+        class="topbar-nav__link"
+        [routerLink]="item.route"
+        routerLinkActive="topbar-nav__link--active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        [attr.aria-label]="item.label + ' — ' + item.description"
+        (click)="closeMobileMenu()"
+      >
+        <span class="material-icons">{{ item.icon }}</span>
+        {{ item.label }}
+      </a>
+    </nav>
+
+    <!-- Info de usuario + logout (desktop) -->
+    <div class="topbar-user" *ngIf="user">
+      <div class="topbar-user__info">
+        <span class="topbar-user__name">{{ user.name }}</span>
+        <span class="topbar-user__role">{{ user.role }}</span>
+      </div>
+      <button
+        class="btn btn--ghost topbar-user__logout"
+        type="button"
+        (click)="onLogout()"
+        title="Cerrar sesión"
+        aria-label="Cerrar sesión"
+      >
+        <span class="material-icons">power_settings_new</span>
+      </button>
+    </div>
+
+    <!-- Hamburger (mobile) -->
+    <button
+      class="topbar-hamburger btn btn--icon"
+      type="button"
+      (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="isMobileMenuOpen"
+      aria-label="Abrir menú"
+    >
+      <span class="material-icons">{{ isMobileMenuOpen ? 'close' : 'menu' }}</span>
+    </button>
+
+  </header>
+
+  <!-- ══ MENÚ MÓVIL ══════════════════════════════════════════════════════════ -->
+  <nav
+    class="mobile-menu"
+    [class.mobile-menu--open]="isMobileMenuOpen"
+    role="navigation"
+    aria-label="Menú móvil"
+  >
+    <a
+      *ngFor="let item of navItems"
+      class="mobile-menu__link"
+      [routerLink]="item.route"
+      routerLinkActive="mobile-menu__link--active"
+      (click)="closeMobileMenu()"
+    >
+      <span class="material-icons">{{ item.icon }}</span>
+      <div>
+        <strong>{{ item.label }}</strong>
+        <small>{{ item.description }}</small>
+      </div>
+    </a>
+    <div class="mobile-menu__footer" *ngIf="user">
+      <div class="topbar-user__info">
+        <span class="topbar-user__name">{{ user.name }}</span>
+        <span class="topbar-user__role">{{ user.role }}</span>
+      </div>
+      <button class="btn btn--ghost" type="button" (click)="onLogout()">
+        <span class="material-icons">power_settings_new</span>
+        Cerrar sesión
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══ CONTENIDO PRINCIPAL ══════════════════════════════════════════════════ -->
+  <main class="admin-content" role="main">
+    <router-outlet></router-outlet>
+  </main>
+
+</ng-container>

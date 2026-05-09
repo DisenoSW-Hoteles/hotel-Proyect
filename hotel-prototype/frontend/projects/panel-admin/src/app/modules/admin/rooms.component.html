@@ -1,0 +1,72 @@
+<section class="card rooms-wrapper">
+  <header class="page-header">
+    <div class="header-icon">
+      <span class="material-icons">hotel</span>
+    </div>
+    <div>
+      <h1>Gestión de Habitaciones</h1>
+      <p>Administra tarifas y disponibilidad por sucursal.</p>
+    </div>
+  </header>
+
+  <form [formGroup]="filterForm" class="form-row" (ngSubmit)="onFilterChange()">
+    <div class="form-field form-field--narrow">
+      <label for="branch">Sucursal</label>
+      <select id="branch" formControlName="branch" class="input">
+        <option *ngFor="let branch of branches" [value]="branch.value">{{ branch.label }}</option>
+      </select>
+    </div>
+    <button class="btn btn--secondary" type="submit">Filtrar</button>
+  </form>
+
+  <section class="card" *ngIf="rooms$ | async as rooms">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Habitación</th>
+          <th>Tipo</th>
+          <th>Base</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let room of rooms">
+          <td>{{ room.number }}</td>
+          <td>{{ room.type }}</td>
+          <td>{{ room.baseRate | currency:'CLP' }}</td>
+          <td>{{ room.status }}</td>
+          <td>
+            <button class="btn btn--primary btn--small" type="button" (click)="openRateModal(room)">
+              Editar tarifa
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section *ngIf="showRateModal" class="modal-overlay">
+    <div class="modal-card">
+      <h2>Actualizar Tarifa</h2>
+      <form [formGroup]="rateForm" (ngSubmit)="onSaveRate()" novalidate>
+        <div class="form-field">
+          <label for="baseRate">Tarifa base</label>
+          <input id="baseRate" type="number" formControlName="baseRate" class="input" />
+        </div>
+        <div class="form-field">
+          <label for="effectiveFrom">Desde</label>
+          <input id="effectiveFrom" type="date" formControlName="effectiveFrom" class="input" />
+        </div>
+        <div class="form-field">
+          <label for="reason">Motivo</label>
+          <textarea id="reason" formControlName="reason" class="input"></textarea>
+        </div>
+        <div class="card__footer">
+          <button class="btn btn--secondary" type="button" (click)="closeModal()">Cancelar</button>
+          <button class="btn btn--primary" type="submit">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</section>

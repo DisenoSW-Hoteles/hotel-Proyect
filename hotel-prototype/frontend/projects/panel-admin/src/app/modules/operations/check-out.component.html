@@ -1,0 +1,307 @@
+<!--
+  CHECK-OUT COMPONENT
+  Usa `*ngIf="folioState$ | async as fs"` para suscribirse UNA sola vez al Observable
+  y acceder a propiedades (isSaving, error) sin crear N subscripciones en el template.
+
+  El [disabled] usa !! para coercionar boolean|undefined → boolean (strictTemplates).
+-->
+<section class="checkout-wrapper">
+
+  <!-- ── CABECERA ─────────────────────────────────────────────────────────── -->
+  <header class="page-header">
+    <div class="header-icon">
+      <span class="material-icons">logout</span>
+    </div>
+    <div>
+      <h1>Check-out</h1>
+      <p>Finaliza el proceso de salida y cierra el folio del huésped.</p>
+    </div>
+
+    <nav class="stepper" aria-label="Pasos del check-out">
+      <div class="step" [class.active]="currentStep === 'SEARCH'" [class.done]="currentStep !== 'SEARCH'">
+        <span class="step-num">1</span> Buscar
+      </div>
+      <div class="step-divider"></div>
+      <div class="step" [class.active]="currentStep === 'FOLIO'" [class.done]="currentStep === 'PAYMENT' || currentStep === 'SUCCESS'">
+        <span class="step-num">2</span> Folio
+      </div>
+      <div class="step-divider"></div>
+      <div class="step" [class.active]="currentStep === 'PAYMENT'" [class.done]="currentStep === 'SUCCESS'">
+        <span class="step-num">3</span> Pago
+      </div>
+    </nav>
+  </header>
+
+  <!-- ── PASO 1: BÚSQUEDA ──────────────────────────────────────────────────── -->
+  <ng-container *ngIf="currentStep === 'SEARCH'">
+    <ng-container *ngIf="reservationState$ | async as resState">
+      <div *ngIf="resState.error" class="alert alert--error" role="alert">
+        <span class="material-icons">error_outline</span>
+        {{ resState.error }}
+      </div>
+
+      <section class="card" aria-labelledby="search-heading">
+        <h2 id="search-heading" class="card__title">Buscar Reserva</h2>
+        <form [formGroup]="searchForm" (ngSubmit)="onSearchReservation()" novalidate>
+          <div class="form-field">
+            <label for="code">Código de reserva</label>
+            <div class="input-wrapper">
+              <span class="material-icons input-icon">confirmation_number</span>
+              <input
+                id="code"
+                type="text"
+                formControlName="code"
+                class="input"
+                [class.input--error]="searchForm.get('code')?.invalid && searchForm.get('code')?.touched"
+                placeholder="Ej: HTL-2024-00123"
+              />
+            </div>
+            <span *ngIf="searchForm.get('code')?.invalid && searchForm.get('code')?.touched" class="field-error">
+              Ingrese un código válido (mínimo 3 caracteres).
+            </span>
+          </div>
+
+          <button
+            class="btn btn--primary"
+            type="submit"
+            [disabled]="!!resState.isLoading"
+          >
+            <span *ngIf="!!resState.isLoading" class="spinner"></span>
+            {{ resState.isLoading ? 'Buscando...' : 'Buscar Folio' }}
+          </button>
+        </form>
+      </section>
+    </ng-container>
+  </ng-container>
+
+  <!-- ── PASO 2: FOLIO ─────────────────────────────────────────────────────── -->
+  <ng-container *ngIf="currentStep === 'FOLIO' && (activeFolio$ | async) as folio">
+
+    <!-- Resumen del huésped y habitación -->
+    <div class="reservation-summary card">
+      <div class="summary-badge">
+        <span class="material-icons">hotel</span>
+        Hab. {{ folio.room.number }}
+      </div>
+      <div class="summary-info">
+        <h2>{{ folio.guest.firstName }} {{ folio.guest.lastName }}</h2>
+        <p>
+          <strong>Check-in:</strong> {{ folio.checkInDate | date:'dd/MM/yyyy HH:mm' }}
+          <ng-container *ngIf="folio.checkOutDate">
+            &nbsp;|&nbsp; <strong>Salida:</strong> {{ folio.checkOutDate | date:'dd/MM/yyyy' }}
+          </ng-container>
+        </p>
+      </div>
+      <div class="companions-counter">
+        <div class="counter-value counter--ok">
+          {{ totalAmount$ | async | currency:'CLP':'symbol-narrow':'1.0-0' }}
+        </div>
+        <div class="counter-label">Total del folio</div>
+      </div>
+    </div>
+
+    <!-- Estado de operaciones del folio -->
+    <ng-container *ngIf="folioState$ | async as fs">
+      <div *ngIf="fs.error" class="alert alert--error" role="alert">
+        <span class="material-icons">error_outline</span>
+        {{ fs.error }}
+      </div>
+
+      <!-- ── Detalle de cargos ── -->
+      <section class="card" aria-labelledby="folio-heading">
+        <h2 id="folio-heading" class="card__title">Detalle de Cargos</h2>
+
+        <table class="table" *ngIf="folio.charges.length; else sinCargos">
+          <thead>
+            <tr>
+              <th>Descripción</th>
+              <th>Categoría</th>
+              <th>Cant.</th>
+              <th style="text-align:right">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let charge of folio.charges">
+              <td>{{ charge.description }}</td>
+              <td>{{ getCategoryLabel(charge.category) }}</td>
+              <td>{{ charge.quantity }}</td>
+              <td style="text-align:right; font-family: var(--font-mono)">
+                {{ charge.amount * charge.quantity | currency:'CLP':'symbol-narrow':'1.0-0' }}
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="font-weight:600; padding-top:1rem; border-top:2px solid var(--color-border)">
+                TOTAL A COBRAR
+              </td>
+              <td style="text-align:right; font-weight:700; font-family:var(--font-mono); font-size:1.1rem; padding-top:1rem; color:var(--color-gold); border-top:2px solid var(--color-border)">
+                {{ totalAmount$ | async | currency:'CLP':'symbol-narrow':'1.0-0' }}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <ng-template #sinCargos>
+          <p style="color:var(--color-text-muted); padding: 1rem 0; text-align:center;">
+            <span class="material-icons" style="font-size:2rem; display:block; margin-bottom:0.5rem;">receipt</span>
+            Sin cargos adicionales registrados.
+          </p>
+        </ng-template>
+
+        <!-- Botón para agregar cargo -->
+        <div style="margin-top: 1.5rem;">
+          <button
+            class="btn btn--secondary"
+            type="button"
+            (click)="showAddChargePanel = !showAddChargePanel"
+          >
+            <span class="material-icons">{{ showAddChargePanel ? 'remove_circle_outline' : 'add_circle_outline' }}</span>
+            {{ showAddChargePanel ? 'Cancelar' : 'Agregar cargo' }}
+          </button>
+        </div>
+
+        <!-- Formulario de cargo dinámico -->
+        <div *ngIf="showAddChargePanel" class="card" style="margin-top:1rem; background:var(--color-surface-2); box-shadow:none;">
+          <h3 class="card__title">Registrar Cargo Adicional</h3>
+          <form [formGroup]="addChargeForm" (ngSubmit)="onAddCharge()" novalidate>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="category">Categoría</label>
+                <select id="category" formControlName="category" class="input">
+                  <option *ngFor="let cat of chargeCategories" [value]="cat.value">{{ cat.label }}</option>
+                </select>
+              </div>
+              <div class="form-field form-field--narrow">
+                <label for="quantity">Cantidad</label>
+                <input id="quantity" type="number" formControlName="quantity" class="input" min="1" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="description">Descripción</label>
+                <input
+                  id="description"
+                  type="text"
+                  formControlName="description"
+                  class="input"
+                  placeholder="Descripción del cargo"
+                />
+                <span *ngIf="addChargeForm.get('description')?.invalid && addChargeForm.get('description')?.touched" class="field-error">
+                  Mínimo 5 caracteres.
+                </span>
+              </div>
+              <div class="form-field form-field--narrow">
+                <label for="amount">Monto (CLP)</label>
+                <input
+                  id="amount"
+                  type="number"
+                  formControlName="amount"
+                  class="input"
+                  placeholder="15000"
+                />
+              </div>
+            </div>
+            <button
+              class="btn btn--primary btn--small"
+              type="submit"
+              [disabled]="addChargeForm.invalid || !!fs.isSaving"
+            >
+              <span *ngIf="!!fs.isSaving" class="spinner"></span>
+              Registrar Cargo
+            </button>
+          </form>
+        </div>
+
+        <!-- Footer: cerrar folio -->
+        <div class="card__footer">
+          <button
+            class="btn btn--primary"
+            type="button"
+            (click)="onProceedToPayment()"
+            [disabled]="!!fs.isSaving"
+          >
+            <span *ngIf="!!fs.isSaving" class="spinner"></span>
+            <span class="material-icons" *ngIf="!fs.isSaving">payments</span>
+            Cerrar Folio y Cobrar
+          </button>
+        </div>
+
+      </section>
+    </ng-container>
+  </ng-container>
+
+  <!-- ── PASO 3: PAGO ──────────────────────────────────────────────────────── -->
+  <section *ngIf="currentStep === 'PAYMENT'" class="card" aria-labelledby="payment-heading">
+    <h2 id="payment-heading" class="card__title">
+      <span class="material-icons" style="vertical-align:middle; margin-right:0.5rem;">payments</span>
+      Método de Pago
+    </h2>
+
+    <ng-container *ngIf="totalAmount$ | async as total">
+      <div class="confirm-summary">
+        <div class="confirm-row">
+          <span class="material-icons">receipt_long</span>
+          <span>Total a cobrar</span>
+          <strong style="margin-left:auto; font-family:var(--font-mono); font-size:1.25rem; color:var(--color-gold)">
+            {{ total | currency:'CLP':'symbol-narrow':'1.0-0' }}
+          </strong>
+        </div>
+      </div>
+    </ng-container>
+
+    <form [formGroup]="paymentForm" (ngSubmit)="onConfirmPayment()" novalidate>
+      <div class="form-field" style="margin-bottom: 1.5rem;">
+        <label>Seleccionar método de pago</label>
+        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem;">
+          <label
+            *ngFor="let method of paymentMethods"
+            class="toggle-option"
+            [class.active]="paymentForm.get('paymentMethod')?.value === method.value"
+            style="width:100%; border-radius:var(--radius-md); border:1px solid var(--color-border); padding:0.75rem 1rem;"
+          >
+            <input type="radio" formControlName="paymentMethod" [value]="method.value" />
+            {{ method.label }}
+          </label>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="observations">Observaciones (opcional)</label>
+        <textarea
+          id="observations"
+          formControlName="observations"
+          class="input"
+          rows="2"
+          placeholder="Número de voucher, referencia de transferencia, etc."
+          style="resize: vertical; min-height: 60px;"
+        ></textarea>
+      </div>
+
+      <div class="card__footer">
+        <button class="btn btn--primary btn--full" type="submit">
+          <span class="material-icons">check_circle</span>
+          Confirmar Pago y Finalizar
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ── ÉXITO ─────────────────────────────────────────────────────────────── -->
+  <section *ngIf="currentStep === 'SUCCESS'" class="card card--success">
+    <div class="success-illustration">
+      <span class="material-icons success-icon">check_circle</span>
+    </div>
+    <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Check-out completado</h2>
+    <p class="checkout-reminder">El folio fue cerrado y el pago registrado exitosamente.</p>
+    <div class="card__footer" style="justify-content:center; border:none;">
+      <a class="btn btn--primary" routerLink="/admin/front-desk/check-in">
+        <span class="material-icons">login</span> Nuevo Check-in
+      </a>
+      <a class="btn btn--secondary" routerLink="/admin/rooms">
+        <span class="material-icons">hotel</span> Habitaciones
+      </a>
+    </div>
+  </section>
+
+</section>

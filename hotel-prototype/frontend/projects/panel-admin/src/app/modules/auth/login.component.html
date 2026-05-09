@@ -1,0 +1,136 @@
+<!--
+  LOGIN PAGE
+  Se usa `*ngIf="authState$ | async as state"` para suscribirse UNA sola vez al
+  Observable y acceder a `state.isLoading` / `state.error` sin crear N subscripciones.
+
+  El `!! state.isLoading` coerciona `boolean | undefined` → `boolean` para satisfacer
+  el tipado estricto de Angular 21 (strictTemplates:true) en el binding [disabled].
+-->
+<ng-container *ngIf="authState$ | async as state">
+  <div class="login-page">
+
+    <!-- ── BRANDING ── -->
+    <div class="login-brand">
+      <div class="brand-logo">
+        <span class="material-icons">hotel</span>
+      </div>
+      <h1>Hotel Admin</h1>
+      <p>Panel de Gestión Interna</p>
+    </div>
+
+    <!-- ── CARD ── -->
+    <div class="login-card">
+      <h2>Iniciar sesión</h2>
+      <p class="login-subtitle">Accede con tus credenciales corporativas.</p>
+
+      <!-- Error de autenticación (estado del servicio, no de validación) -->
+      <div *ngIf="state.error" class="alert alert--error" role="alert">
+        <span class="material-icons">error_outline</span>
+        {{ state.error }}
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- ── CAMPO EMAIL ── -->
+        <div class="form-field">
+          <label for="email">Correo electrónico</label>
+          <div class="input-wrapper">
+            <span class="material-icons input-icon">email</span>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="input"
+              [class.input--error]="!!getFieldError('email')"
+              placeholder="admin@hotel.com"
+              autocomplete="email"
+              aria-describedby="email-error"
+            />
+          </div>
+          <span
+            id="email-error"
+            class="field-error"
+            *ngIf="getFieldError('email')"
+            role="alert"
+          >
+            {{ getFieldError('email') }}
+          </span>
+        </div>
+
+        <!-- ── CAMPO CONTRASEÑA ── -->
+        <div class="form-field">
+          <label for="password">Contraseña</label>
+          <div class="input-wrapper">
+            <span class="material-icons input-icon">lock</span>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              class="input"
+              [class.input--error]="!!getFieldError('password')"
+              placeholder="Mínimo 8 caracteres"
+              autocomplete="current-password"
+              aria-describedby="password-error"
+            />
+            <button
+              type="button"
+              class="input-toggle"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <span
+            id="password-error"
+            class="field-error"
+            *ngIf="getFieldError('password')"
+            role="alert"
+          >
+            {{ getFieldError('password') }}
+          </span>
+        </div>
+
+        <!-- ── RECORDARME ── -->
+        <div class="form-field form-field--inline" style="margin-bottom: 1.5rem;">
+          <input
+            id="rememberMe"
+            type="checkbox"
+            formControlName="rememberMe"
+          />
+          <label for="rememberMe" style="text-transform:none; letter-spacing:0; font-size:0.875rem;">
+            Mantener sesión iniciada
+          </label>
+        </div>
+
+        <!-- ── SUBMIT ── -->
+        <!-- !! coerciona boolean|undefined → boolean para satisfacer strictTemplates -->
+        <button
+          class="btn btn--primary btn--full"
+          type="submit"
+          [disabled]="loginForm.invalid || !!state.isLoading"
+        >
+          <span *ngIf="!!state.isLoading" class="spinner spinner--white"></span>
+          {{ state.isLoading ? 'Verificando credenciales...' : 'Ingresar al Panel' }}
+        </button>
+
+      </form>
+
+      <!-- ── ACCESO DEMO ── -->
+      <div class="login-demo">
+        <span>¿Sin credenciales?</span>
+        <button type="button" class="btn btn--ghost btn--small" (click)="onLoginDemo()">
+          <span class="material-icons">play_circle_outline</span>
+          Entrar en modo demo
+        </button>
+      </div>
+
+      <!-- ── PIE DE PÁGINA ── -->
+      <footer class="login-footer">
+        <span class="material-icons">security</span>
+        Acceso protegido · Solo personal autorizado
+      </footer>
+    </div>
+
+  </div>
+</ng-container>

@@ -13,7 +13,7 @@
     "experimentalDecorators": true,
     "paths": {
       "shared-models": [
-        "./projects/shared-models/src/public-api.ts"
+        "./dist/shared-models"
       ]
     },
     "importHelpers": true,

@@ -1,0 +1,15 @@
+﻿// =============================================================================
+// APP COMPONENT STYLES
+// NOTA ARQUITECTÓNICA: Los estilos globales del Design System se gestionan
+// en src/styles.scss (referenciado en angular.json — styles: ["projects/panel-admin/src/styles.scss"]).
+//
+// NO importar shared/styles.scss aquí — con ViewEncapsulation.Emulated
+// (comportamiento default de Angular), cualquier estilo definido en este
+// archivo queda encapsulado dentro de <app-root> y NO se propaga a los
+// componentes hijos (LoginComponent, CheckInComponent, RoomsComponent, etc.).
+// =============================================================================
+
+:host {
+  display: block;
+  min-height: 100vh;
+}

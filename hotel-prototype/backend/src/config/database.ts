@@ -1,20 +1,17 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { env } from './environment.js';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || '5432'),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  // CRÍTICO: Debe ser false porque tu compañero ya creó las tablas con SQL nativo
+  host: env.db.host,
+  port: env.db.port,
+  username: env.db.username,
+  password: env.db.password,
+  database: env.db.database,
   synchronize: false,
-  logging: true,
-  entities: [], // Aquí conectaremos los modelos más adelante
+  logging: false,
+  entities: [__dirname + '/../models/entities/*.{ts,js}'],
+  migrations: [__dirname + '/../../database/migrations/*.{ts,js}'],
   subscribers: [],
-  migrations: [],
 });

@@ -10,13 +10,13 @@ export const routes: Routes = [
   {
     path: 'auth',
     loadChildren: () =>
-      import('./modules/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+      import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
     path: 'admin',
     canActivate: [authGuard],
     loadChildren: () =>
-      import('./modules/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+      import('./layout/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
   {
     path: '**',

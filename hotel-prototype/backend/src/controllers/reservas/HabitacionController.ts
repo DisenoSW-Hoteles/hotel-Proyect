@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { HabitacionService } from '../../services/reservas/HabitacionService.js';
+import { HabitacionService } from '../../services/reservas/HabitacionService';
 import { ConsultaDisponibilidadDTO } from '../../models/dtos/Habitacion.dto.js';
 
 const habitacionService = new HabitacionService();

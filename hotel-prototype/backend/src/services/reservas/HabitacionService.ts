@@ -1,4 +1,4 @@
-import { HabitacionRepository } from '../../repositories/reservas/HabitacionRepository.js';
+import { HabitacionRepository } from '../../repositories/reservas/HabitacionRepository';
 import {
   ConsultaDisponibilidadDTO,
   HabitacionDisponibleDTO,

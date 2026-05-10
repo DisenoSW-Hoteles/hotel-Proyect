@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 // 1. Importación con llaves (Named Import) para coincidir con app.ts
-import { app } from './app.js';
-import { AppDataSource } from './config/database.js';
+import { app } from './app';
+import { AppDataSource } from './config/database';
 import dotenv from 'dotenv';
 
 // Cargamos el .env antes de inicializar cualquier cosa

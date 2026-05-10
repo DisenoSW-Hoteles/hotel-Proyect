@@ -5,10 +5,10 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 
 // Importaciones Arquitectónicas
-import { AppError } from './utils/errors/AppError.js';
-import { errorHandler } from './middleware/error/errorHandler.js';
-import { HabitacionController } from './controllers/reservas/HabitacionController.js';
-import healthRoutes from './routes/healthRoutes.js';
+import { AppError } from './utils/errors/AppError';
+import { errorHandler } from './middleware/error/errorHandler';
+import { HabitacionController } from './controllers/reservas/HabitacionController';
+import healthRoutes from './routes/healthRoutes';
 
 export const app: Application = express();
 

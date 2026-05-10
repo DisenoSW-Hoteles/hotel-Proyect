@@ -1,22 +1,22 @@
+import 'reflect-metadata';
+// 1. Importación con llaves (Named Import) para coincidir con app.ts
 import { app } from './app.js';
 import { AppDataSource } from './config/database.js';
+import dotenv from 'dotenv';
 
+// Cargamos el .env antes de inicializar cualquier cosa
+dotenv.config();
+
+// Definimos el puerto desde la bóveda, con un fallback de seguridad
 const PORT = process.env.PORT || 3000;
 
-const startServer = async () => {
-  try {
-    // Primero, garantizamos la conexión a la base de datos
-    await AppDataSource.initialize();
-    console.log('📦 Conexión a PostgreSQL establecida exitosamente mediante TypeORM.');
-
-    // Luego, levantamos el servidor web
+AppDataSource.initialize()
+  .then(() => {
     app.listen(PORT, () => {
-      console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
+      console.log(`Server ready on http://localhost:${PORT}`);
     });
-  } catch (error) {
-    console.error('🔥 Error fatal al conectar con la base de datos:', error);
+  })
+  .catch((error: unknown) => {
+    console.error('Database initialization failed', error);
     process.exit(1);
-  }
-};
-
-startServer();
+  });

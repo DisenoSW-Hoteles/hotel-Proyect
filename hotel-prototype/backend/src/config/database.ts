@@ -1,17 +1,22 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { env } from './environment.js';
+import dotenv from 'dotenv';
+import { Habitacion } from '../models/entities/Habitacion.entity.js';
+
+// Esto carga tu archivo .env en la bóveda global process.env
+dotenv.config();
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  host: env.db.host,
-  port: env.db.port,
-  username: env.db.username,
-  password: env.db.password,
-  database: env.db.database,
+  // Apuntamos a la bóveda. Si por alguna razón la variable no existe, usamos un "fallback" de seguridad
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  username: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || 'tu_contraseña_aqui', // Ajusta tu fallback si es necesario
+  database: process.env.DB_NAME || 'hotel_db',
   synchronize: false,
-  logging: false,
-  entities: [__dirname + '/../models/entities/*.{ts,js}'],
-  migrations: [__dirname + '/../../database/migrations/*.{ts,js}'],
+
+  logging: true,
+  entities: [Habitacion],
   subscribers: [],
 });

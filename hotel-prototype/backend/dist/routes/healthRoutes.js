@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const healthController_1 = require("../controllers/healthController");
-const healthService_1 = require("../services/healthService");
+const healthController_js_1 = require("../controllers/healthController.js");
+const healthService_js_1 = require("../services/healthService.js");
 const router = (0, express_1.Router)();
-const healthService = new healthService_1.HealthService();
-const healthController = new healthController_1.HealthController(healthService);
+const healthService = new healthService_js_1.HealthService();
+const healthController = new healthController_js_1.HealthController(healthService);
 router.get('/health', (req, res) => healthController.checkHealth(req, res));
 exports.default = router;

@@ -1,48 +1,47 @@
+import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import express, { Application, Request, Response } from 'express';
 import helmet from 'helmet';
-import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
+
+// Importaciones Arquitectónicas
+import { AppError } from './utils/errors/AppError';
+import { errorHandler } from './middleware/error/errorHandler';
+import { HabitacionController } from './controllers/reservas/HabitacionController';
 import healthRoutes from './routes/healthRoutes';
 
-const app: Application = express();
+export const app: Application = express();
 
-// Swagger configuration
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Hotel Management System API',
-      version: '1.0.0',
-      description: 'Centralized Hotel Management System - Backend API',
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000',
-        description: 'Development server',
-      },
-    ],
-  },
-  apis: ['./src/routes/*.ts', './src/controllers/*.ts'], // Paths to files containing OpenAPI definitions
-};
-
-const swaggerSpec = swaggerJSDoc(swaggerOptions);
-
-// Middleware
+// 1. Middlewares Globales
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// 2. Swagger (Configuración Básica)
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: { title: 'Hotel API', version: '1.0.0' },
+  },
+  apis: ['./src/controllers/**/*.ts', './src/routes/**/*.ts'],
+};
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJsdoc(swaggerOptions)));
 
-// Routes
-app.use('/api', healthRoutes);
+// 3. Inicialización de Controladores
+const habitacionCtrl = new HabitacionController();
 
-// Health check endpoint (legacy - can be removed once routes are fully implemented)
-app.get('/health', (_req: Request, res: Response) => {
-  res.status(200).json({ status: 'ok' });
+// 4. Rutas de la API
+app.use('/api', healthRoutes); // Mantenemos la ruta de salud modular si tu compañero la necesita
+
+app.post('/api/habitaciones/disponibilidad', (req, res, next) =>
+  habitacionCtrl.buscarDisponibilidad(req, res, next)
+);
+
+// 5. Interceptor de Rutas Inexistentes (404)
+app.all('*', (req: Request, _res: Response, next: NextFunction) => {
+  next(new AppError(`No se puede encontrar la ruta ${req.originalUrl} en este servidor.`, 404));
 });
 
-export default app;
+// 6. Interceptor Global de Errores
+app.use(errorHandler);

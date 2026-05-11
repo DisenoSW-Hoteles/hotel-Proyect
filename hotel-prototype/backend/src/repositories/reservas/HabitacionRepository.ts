@@ -1,6 +1,6 @@
-import { AppDataSource } from '../../config/database.js';
-import { Habitacion } from '../../models/entities/Habitacion.entity.js';
-import { ConsultaDisponibilidadDTO } from '../../models/dtos/Habitacion.dto.js';
+import { AppDataSource } from '../../config/database';
+import { Habitacion } from '../../models/entities/Habitacion.entity';
+import { ConsultaDisponibilidadDTO } from '../../models/dtos/Habitacion.dto';
 
 export const HabitacionRepository = AppDataSource.getRepository(Habitacion).extend({
 
@@ -24,5 +24,10 @@ export const HabitacionRepository = AppDataSource.getRepository(Habitacion).exte
       .setParameter('fechaCheckIn', fechaCheckIn)
       .setParameter('fechaCheckOut', fechaCheckOut)
       .getMany();
-  }
+  },
+  async buscarTodas() {
+  const repo = AppDataSource.getRepository(Habitacion);
+  // Traemos todas las habitaciones
+  return await repo.find();
+}
 });

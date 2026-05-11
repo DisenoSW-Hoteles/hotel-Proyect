@@ -61,7 +61,7 @@ export class FormularioReserva {
 
     const payload: CrearReservaDTO = {
       habitacionId: this.habitacion()!.id,
-      sucursalId: this.consulta()!.sucursalId,
+      sucursalId: this.consulta()!.sucursalNombre,
       fechaCheckIn: this.consulta()!.fechaCheckIn,
       fechaCheckOut: this.consulta()!.fechaCheckOut,
       cantidadHuespedes: this.consulta()!.cantidadHuespedes,

@@ -2,5 +2,5 @@ export enum Sucursal {
   Temuco = 'Temuco',
   Pucon = 'Pucon',
   Santiago = 'Santiago',
-  VinaDelMar = 'VinaDelMar'
+  Vina_Del_Mar = 'Vina_Del_Mar'
 }

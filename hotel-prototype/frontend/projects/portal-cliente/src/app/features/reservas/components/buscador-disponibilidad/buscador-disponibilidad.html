@@ -5,13 +5,13 @@
     <div class="form-row">
       <div class="form-group">
         <label for="sucursal">Sucursal</label>
-        <select id="sucursal" formControlName="sucursalId">
+        <select id="sucursal" formControlName="sucursalNombre">
           <option value="">Selecciona una sucursal</option>
           @for (s of sucursales; track s) {
             <option [value]="s">{{ s }}</option>
           }
         </select>
-        @if (f.sucursalId.touched && f.sucursalId.invalid) {
+        @if (f.sucursalNombre.touched && f.sucursalNombre.invalid) {
           <span class="error-text">Selecciona una sucursal</span>
         }
       </div>

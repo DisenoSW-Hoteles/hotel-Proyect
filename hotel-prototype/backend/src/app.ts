@@ -8,6 +8,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import { AppError } from './utils/errors/AppError';
 import { errorHandler } from './middleware/error/errorHandler';
 import { HabitacionController } from './controllers/reservas/HabitacionController';
+import { AuthController } from './controllers/auth/AuthController'; // <-- Inyección del nuevo controlador
 import healthRoutes from './routes/healthRoutes';
 
 export const app: Application = express();
@@ -30,12 +31,22 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJsdoc(swaggerOption
 
 // 3. Inicialización de Controladores
 const habitacionCtrl = new HabitacionController();
+const authCtrl = new AuthController(); // <-- Instancia del nuevo controlador
 
 // 4. Rutas de la API
 app.use('/api', healthRoutes); // Mantenemos la ruta de salud modular si tu compañero la necesita
 
+app.get('/api/admin/rooms', (req, res, next) =>
+  habitacionCtrl.obtenerTodas(req, res, next)
+);
+
 app.post('/api/habitaciones/disponibilidad', (req, res, next) =>
   habitacionCtrl.buscarDisponibilidad(req, res, next)
+);
+
+// Endpoint de Autenticación para el Panel Administrativo
+app.post('/api/auth/login', (req, res, next) =>
+  authCtrl.login(req, res, next)
 );
 
 // 5. Interceptor de Rutas Inexistentes (404)

@@ -25,7 +25,7 @@ export class BuscadorDisponibilidad {
   readonly buscado = signal(false);
 
   readonly form = this.fb.nonNullable.group({
-    sucursalId: ['' as Sucursal, Validators.required],
+    sucursalNombre: ['', Validators.required],
     fechaCheckIn: ['', Validators.required],
     fechaCheckOut: ['', Validators.required],
     cantidadHuespedes: [1, [Validators.required, Validators.min(1), Validators.max(10)]],

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { HabitacionService } from '../../services/reservas/HabitacionService';
-import { ConsultaDisponibilidadDTO } from '../../models/dtos/Habitacion.dto.js';
+import { ConsultaDisponibilidadDTO } from '../../models/dtos/Habitacion.dto';
 
 const habitacionService = new HabitacionService();
 
@@ -52,4 +52,25 @@ export class HabitacionController {
       next(error); // Delegamos el error al manejador global
     }
   }
-}
+
+
+  /**
+   * @swagger
+   * /api/habitaciones:
+   *   get:
+   *     summary: Obtiene el catálogo completo de habitaciones
+   *     tags: [Habitaciones]
+   *     responses:
+   *       200:
+   *         description: Lista completa de habitaciones para el panel administrativo
+   */
+  async obtenerTodas(req: Request, res: Response, next: NextFunction) {
+    try {
+      const habitaciones = await habitacionService.obtenerTodas();
+
+      res.status(200).json(habitaciones);
+    } catch (error) {
+      next(error); // El errorHandler de app.ts se encarga del resto
+    }
+  }
+  }

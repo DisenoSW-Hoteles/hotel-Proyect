@@ -13,7 +13,7 @@ export class DisponibilidadService implements IDisponibilidadService {
   ) {}
 
   buscarDisponibilidad(consulta: ConsultaDisponibilidadDTO): Observable<HabitacionDisponibleDTO[]> {
-    return this.http.post<HabitacionDisponibleDTO[]>(`${this.apiUrl}/reservas/disponibilidad`, consulta);
+    return this.http.post<HabitacionDisponibleDTO[]>(`${this.apiUrl}/habitaciones/disponibilidad`, consulta);
   }
 
   crearReserva(reserva: CrearReservaDTO): Observable<ReservaDTO> {

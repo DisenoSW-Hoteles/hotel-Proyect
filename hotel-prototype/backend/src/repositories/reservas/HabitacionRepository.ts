@@ -1,5 +1,5 @@
-import { AppDataSource } from '../../config/database.js';
-import { Habitacion } from '../../models/entities/Habitacion.entity.js';
+import { AppDataSource } from '../../config/database';
+import { Habitacion } from '../../models/entities/Habitacion.entity';
 import { ConsultaDisponibilidadDTO } from '../../models/dtos/Habitacion.dto.js';
 
 export const HabitacionRepository = AppDataSource.getRepository(Habitacion).extend({

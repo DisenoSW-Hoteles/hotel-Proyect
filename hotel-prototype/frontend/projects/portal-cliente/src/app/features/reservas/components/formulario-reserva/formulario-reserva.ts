@@ -47,7 +47,7 @@ export class FormularioReserva {
   toggleServicio(servicio: TipoServicio): void {
     const current = this.form.controls.servicios.value;
     if (current.includes(servicio)) {
-      this.form.controls.servicios.setValue(current.filter(s => s !== servicio));
+      this.form.controls.servicios.setValue(current.filter((s) => s !== servicio));
     } else {
       this.form.controls.servicios.setValue([...current, servicio]);
     }
@@ -59,12 +59,13 @@ export class FormularioReserva {
     this.loading.set(true);
     this.error.set(null);
 
+    const c = this.consulta()!;
     const payload: CrearReservaDTO = {
       habitacionId: this.habitacion()!.id,
-      sucursalId: this.consulta()!.sucursalId,
-      fechaCheckIn: this.consulta()!.fechaCheckIn,
-      fechaCheckOut: this.consulta()!.fechaCheckOut,
-      cantidadHuespedes: this.consulta()!.cantidadHuespedes,
+      sucursalNombre: c.sucursalNombre,
+      fechaCheckIn: c.fechaCheckIn,
+      fechaCheckOut: c.fechaCheckOut,
+      cantidadHuespedes: c.cantidadHuespedes,
       huespedNombre: this.form.getRawValue().huespedNombre,
       huespedEmail: this.form.getRawValue().huespedEmail,
       huespedTelefono: this.form.getRawValue().huespedTelefono,

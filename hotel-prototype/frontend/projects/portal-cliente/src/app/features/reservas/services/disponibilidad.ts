@@ -1,9 +1,20 @@
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ConsultaDisponibilidadDTO, HabitacionDisponibleDTO, CrearReservaDTO, ReservaDTO } from 'shared-models';
+import { map } from 'rxjs/operators';
+import { ConsultaDisponibilidadDTO, HabitacionDisponibleDTO, CrearReservaDTO, ReservaDTO, Sucursal } from 'shared-models';
 import { IDisponibilidadService } from './disponibilidad.interface';
 import { API_BASE_URL } from '../../../config/api.config';
+
+function mapSucursalToApi(sucursal: Sucursal): string {
+  const map: Record<Sucursal, string> = {
+    [Sucursal.Temuco]: 'Temuco',
+    [Sucursal.Pucon]: 'Pucon',
+    [Sucursal.Santiago]: 'Santiago',
+    [Sucursal.VinaDelMar]: 'Vina_del_mar',
+  };
+  return map[sucursal];
+}
 
 @Injectable()
 export class DisponibilidadService implements IDisponibilidadService {
@@ -13,10 +24,17 @@ export class DisponibilidadService implements IDisponibilidadService {
   ) {}
 
   buscarDisponibilidad(consulta: ConsultaDisponibilidadDTO): Observable<HabitacionDisponibleDTO[]> {
-    return this.http.post<HabitacionDisponibleDTO[]>(`${this.apiUrl}/reservas/disponibilidad`, consulta);
+    return this.http
+      .post<{ status: string; results: number; data: HabitacionDisponibleDTO[] }>(
+        `${this.apiUrl}/habitaciones/disponibilidad`,
+        consulta
+      )
+      .pipe(map((res) => res.data));
   }
 
   crearReserva(reserva: CrearReservaDTO): Observable<ReservaDTO> {
     return this.http.post<ReservaDTO>(`${this.apiUrl}/reservas`, reserva);
   }
 }
+
+export { mapSucursalToApi };

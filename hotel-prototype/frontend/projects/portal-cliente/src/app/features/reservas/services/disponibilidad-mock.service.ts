@@ -3,7 +3,7 @@ import { Observable, of, delay, throwError } from 'rxjs';
 import { ConsultaDisponibilidadDTO, HabitacionDisponibleDTO, CrearReservaDTO, ReservaDTO } from 'shared-models';
 import { TipoHabitacion } from 'shared-models';
 import { TipoServicio } from 'shared-models';
-import { Sucursal } from 'shared-models';
+
 import { IDisponibilidadService } from './disponibilidad.interface';
 
 const HABITACIONES_MOCK: HabitacionDisponibleDTO[] = [
@@ -33,7 +33,7 @@ export class DisponibilidadMockService implements IDisponibilidadService {
       id: Math.floor(Math.random() * 1000) + 100,
       habitacionId: reserva.habitacionId,
       tipoHabitacion: habitacion?.tipoHabitacion ?? TipoHabitacion.Estandar,
-      sucursalId: reserva.sucursalId,
+      sucursalNombre: reserva.sucursalNombre,
       fechaCheckIn: reserva.fechaCheckIn,
       fechaCheckOut: reserva.fechaCheckOut,
       cantidadHuespedes: reserva.cantidadHuespedes,

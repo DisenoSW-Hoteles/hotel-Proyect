@@ -1,9 +1,8 @@
-import { Sucursal } from '../enums/sucursal.enum';
 import { TipoServicio } from '../enums/tipo-servicio.enum';
 
 export interface CrearReservaDTO {
   habitacionId: number;
-  sucursalId: Sucursal;
+  sucursalNombre: string;
   fechaCheckIn: string;
   fechaCheckOut: string;
   cantidadHuespedes: number;

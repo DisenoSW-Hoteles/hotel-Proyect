@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { AppError } from '../../utils/errors/AppError.js';
+import { AppError } from '../../utils/errors/AppError';
 
 // Extendemos la interfaz Request de Express para poder inyectarle nuestro usuario
 export interface AuthRequest extends Request {

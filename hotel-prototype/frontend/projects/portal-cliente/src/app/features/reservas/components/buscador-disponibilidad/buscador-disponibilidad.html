@@ -1,34 +1,20 @@
-<div class="buscador-page">
-  <div class="buscador-container">
-    <div class="page-header">
-      <div class="header-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8" />
-          <path d="M21 21l-4.35-4.35" />
-        </svg>
-      </div>
-      <div>
-        <h1>Buscar Disponibilidad</h1>
-        <p>Encuentra la habitación ideal para tu estadía</p>
-      </div>
-    </div>
+<div class="buscador-container">
+  <h2>Buscar Disponibilidad</h2>
 
-    <form [formGroup]="form" (ngSubmit)="buscar()" class="card buscador-form">
-      <div class="form-row">
-        <div class="form-field">
-          <label for="sucursal">Sucursal</label>
-          <div class="input-wrapper">
-            <select id="sucursal" formControlName="sucursalId" class="input">
-              <option value="">Selecciona una sucursal</option>
-              @for (s of sucursales; track s) {
-                <option [value]="s">{{ sucursalLabel[s] }}</option>
-              }
-            </select>
-          </div>
-          @if (f.sucursalId.touched && f.sucursalId.invalid) {
-            <span class="field-error">Selecciona una sucursal</span>
+  <form [formGroup]="form" (ngSubmit)="buscar()" class="buscador-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="sucursal">Sucursal</label>
+        <select id="sucursal" formControlName="sucursalId">
+          <option value="">Selecciona una sucursal</option>
+          @for (s of sucursales; track s) {
+            <option [value]="s">{{ s }}</option>
           }
-        </div>
+        </select>
+        @if (f.sucursalId.touched && f.sucursalId.invalid) {
+          <span class="error-text">Selecciona una sucursal</span>
+        }
+      </div>
 
         <div class="form-field">
           <label for="checkIn">Check-in</label>

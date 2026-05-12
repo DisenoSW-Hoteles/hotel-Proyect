@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../../utils/errors/AppError.js'; // Regla Node16: extensión .js
+import { AppError } from '../../utils/errors/AppError'; // Regla Node16
 
 export const errorHandler = (
   err: Error | AppError,

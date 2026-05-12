@@ -62,10 +62,10 @@ export class FormularioReserva {
     const c = this.consulta()!;
     const payload: CrearReservaDTO = {
       habitacionId: this.habitacion()!.id,
-      sucursalNombre: c.sucursalNombre,
-      fechaCheckIn: c.fechaCheckIn,
-      fechaCheckOut: c.fechaCheckOut,
-      cantidadHuespedes: c.cantidadHuespedes,
+      sucursalId: this.consulta()!.sucursalId,
+      fechaCheckIn: this.consulta()!.fechaCheckIn,
+      fechaCheckOut: this.consulta()!.fechaCheckOut,
+      cantidadHuespedes: this.consulta()!.cantidadHuespedes,
       huespedNombre: this.form.getRawValue().huespedNombre,
       huespedEmail: this.form.getRawValue().huespedEmail,
       huespedTelefono: this.form.getRawValue().huespedTelefono,

@@ -38,7 +38,7 @@ export class BuscadorDisponibilidad {
 
   readonly form = this.fb.nonNullable.group({
     sucursalId: ['' as Sucursal, Validators.required],
-    fechaCheckIn: ['', [Validators.required, fechaCheckInNoPasada()]],
+    fechaCheckIn: ['', Validators.required],
     fechaCheckOut: ['', Validators.required],
     cantidadHuespedes: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
   }, { validators: fechasValidator });

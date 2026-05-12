@@ -3,20 +3,26 @@ import {
   ConsultaDisponibilidadDTO,
   HabitacionDisponibleDTO,
   TipoHabitacion
-} from '../../models/dtos/Habitacion.dto.js';
-import { AppError } from '../../utils/errors/AppError.js';
+} from '../../models/dtos/Habitacion.dto';
+import { AppError } from '../../utils/errors/AppError';
 
 export class HabitacionService {
 
-  async obtenerHabitacionesDisponibles(consulta: ConsultaDisponibilidadDTO): Promise<HabitacionDisponibleDTO[]> {
-    // 1. Validación de reglas de negocio básicas (Ej: fechas coherentes)
-    const entrada = new Date(consulta.fechaCheckIn);
-    const salida = new Date(consulta.fechaCheckOut);
-
-    if (entrada >= salida) {
-      throw new AppError('La fecha de salida debe ser posterior a la de entrada.', 400);
+async obtenerHabitacionesDisponibles(consulta: ConsultaDisponibilidadDTO): Promise<HabitacionDisponibleDTO[]> {
+    // 0. PROGRAMACIÓN DEFENSIVA: Validamos que la sucursal exista antes de normalizar
+    if (!consulta || !consulta.sucursalNombre) {
+      // Si no viene la sucursal, lanzamos un error 400 (Bad Request)
+      // para que el servidor no se caiga.
+      throw new AppError('El nombre de la sucursal es obligatorio para buscar disponibilidad.', 400);
     }
 
+    if (consulta.sucursalNombre) {
+    consulta.sucursalNombre = consulta.sucursalNombre
+    .toUpperCase()              // "viña del mar" -> "VIÑA DEL MAR"
+    .trim()                     // Quita espacios en los extremos
+    .replace(/\s+/g, '_')       // Reemplaza uno o más espacios por "_" -> "VIÑA_DEL_MAR"
+    .replace(/[^A-Z0-9_]/g, ''); // Elimina caracteres especiales como la Ñ o tildes si fuera necesario
+}
     // 2. Pedir los ingredientes al Bodeguero
     const habitacionesCrudas = await HabitacionRepository.buscarDisponibles(consulta);
 
@@ -32,6 +38,21 @@ export class HabitacionService {
       descripcionBreve: `Habitación ${hab.numero} ubicada en el hotel.`
     }));
   }
+
+
+async obtenerTodas(): Promise<HabitacionDisponibleDTO[]> {
+  // 1. Pedir todas las habitaciones al bodeguero
+  const habitacionesCrudas = await HabitacionRepository.buscarTodas();
+
+  // 2. Mapear al formato DTO para que el panel de administración lo entienda
+  return habitacionesCrudas.map(hab => ({
+    id: hab.id,
+    tipoHabitacion: this.mapearTipoHabitacion(hab.tipo),
+    capacidadMaxima: hab.capacidadMaxima,
+    precioPorNoche: 50000,
+      descripcionBreve: `Habitación número ${hab.numero} ubicada en el hotel.`
+  }));
+}
 
   /**
    * Mapeador privado para resolver el descalce de Enums entre DB y Frontend.

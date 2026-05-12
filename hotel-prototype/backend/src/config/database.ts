@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import dotenv from 'dotenv';
-import { Habitacion } from '../models/entities/Habitacion.entity';
+import { Habitacion } from '../models/entities/Habitacion.entity.js';
 
 // Esto carga tu archivo .env en la bóveda global process.env
 dotenv.config();

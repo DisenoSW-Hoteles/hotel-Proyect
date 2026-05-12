@@ -6,6 +6,7 @@ import { Sucursal, ConsultaDisponibilidadDTO, HabitacionDisponibleDTO } from 'sh
 import { IDisponibilidadService, DISPONIBILIDAD_SERVICE } from '../../services/disponibilidad.interface';
 import { mapSucursalToApi } from '../../services/disponibilidad';
 import { ReservaEstadoService } from '../../services/reserva-estado.service';
+import { fechaCheckInNoPasada, fechasValidator } from '../../../../shared/validators/fecha.validators';
 
 const SUCURSAL_LABELS: Record<Sucursal, string> = {
   [Sucursal.Temuco]: 'Temuco',
@@ -26,6 +27,8 @@ export class BuscadorDisponibilidad {
   private readonly router = inject(Router);
   private readonly reservaEstado = inject(ReservaEstadoService);
 
+  readonly hoy = new Date().toISOString().split('T')[0];
+
   readonly sucursales = Object.values(Sucursal);
   readonly sucursalLabel = SUCURSAL_LABELS;
   readonly habitaciones = signal<HabitacionDisponibleDTO[]>([]);
@@ -35,10 +38,10 @@ export class BuscadorDisponibilidad {
 
   readonly form = this.fb.nonNullable.group({
     sucursalId: ['' as Sucursal, Validators.required],
-    fechaCheckIn: ['', Validators.required],
+    fechaCheckIn: ['', [Validators.required, fechaCheckInNoPasada()]],
     fechaCheckOut: ['', Validators.required],
     cantidadHuespedes: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
-  });
+  }, { validators: fechasValidator });
 
   get f() { return this.form.controls; }
 

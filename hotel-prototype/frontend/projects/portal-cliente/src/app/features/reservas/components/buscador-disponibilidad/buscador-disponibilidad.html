@@ -33,20 +33,30 @@
         <div class="form-field">
           <label for="checkIn">Check-in</label>
           <div class="input-wrapper">
-            <input id="checkIn" type="date" formControlName="fechaCheckIn" class="input" />
+            <input id="checkIn" type="date" formControlName="fechaCheckIn" class="input" [attr.min]="hoy" />
           </div>
           @if (f.fechaCheckIn.touched && f.fechaCheckIn.invalid) {
-            <span class="field-error">Fecha requerida</span>
+            @if (f.fechaCheckIn.hasError('required')) {
+              <span class="field-error">La fecha de check-in es requerida</span>
+            }
+            @if (f.fechaCheckIn.hasError('fechaPasada')) {
+              <span class="field-error">El check-in no puede ser una fecha pasada</span>
+            }
           }
         </div>
 
         <div class="form-field">
           <label for="checkOut">Check-out</label>
           <div class="input-wrapper">
-            <input id="checkOut" type="date" formControlName="fechaCheckOut" class="input" />
+            <input id="checkOut" type="date" formControlName="fechaCheckOut" class="input" [attr.min]="f.fechaCheckIn.value || hoy" />
           </div>
           @if (f.fechaCheckOut.touched && f.fechaCheckOut.invalid) {
-            <span class="field-error">Fecha requerida</span>
+            @if (f.fechaCheckOut.hasError('required')) {
+              <span class="field-error">La fecha de check-out es requerida</span>
+            }
+            @if (f.fechaCheckOut.hasError('fechaPosterior')) {
+              <span class="field-error">El check-out debe ser posterior al check-in</span>
+            }
           }
         </div>
 

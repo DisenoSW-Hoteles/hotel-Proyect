@@ -1,1 +1,193 @@
-/* You can add global styles to this file, and also import other style files */
+/* =============================================================================
+   HOTEL UCT — PORTAL CLIENTE · DESIGN SYSTEM
+   Misma estética que el Panel Admin: "Luxury Utilitarian".
+   Deep slate + warm gold + IBM Plex Sans.
+   ============================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+/* ── DESIGN TOKENS ── */
+:root {
+  --color-bg:           #0f1117;
+  --color-surface:      #1a1e2a;
+  --color-surface-2:    #242838;
+  --color-border:       rgba(255, 255, 255, 0.08);
+
+  --color-gold:         #d4af5c;
+  --color-gold-light:   #e8c97a;
+  --color-gold-dim:     rgba(212, 175, 92, 0.15);
+
+  --color-text:         #e8eaf0;
+  --color-text-muted:   #8891a4;
+  --color-text-dim:     #5a6272;
+
+  --color-success:      #3ecf8e;
+  --color-success-dim:  rgba(62, 207, 142, 0.12);
+  --color-warning:      #f5a623;
+  --color-error:        #ff5c5c;
+  --color-error-dim:    rgba(255, 92, 92, 0.12);
+  --color-info:         #5c9eff;
+
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md:   0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg:   0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-gold: 0 0 20px rgba(212, 175, 92, 0.15);
+
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --font-mono:  'IBM Plex Mono', monospace;
+}
+
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4 { line-height: 1.25; letter-spacing: -0.02em; }
+
+a { color: var(--color-gold); text-decoration: none; }
+
+/* ── FORM PRIMITIVES ── */
+label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input,
+input.input,
+select.input {
+  width: 100%;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  padding: 0.7rem 0.9rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+  appearance: none;
+}
+
+/* Hace que el selector nativo de fecha use la paleta oscura (icono visible) */
+input[type='date'].input,
+input[type='number'].input {
+  color-scheme: dark;
+}
+
+.input:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px var(--color-gold-dim);
+}
+
+.input--error {
+  border-color: var(--color-error) !important;
+  box-shadow: 0 0 0 3px var(--color-error-dim) !important;
+}
+
+select.input {
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238891a4'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1.25rem;
+  cursor: pointer;
+}
+
+.field-error {
+  font-size: 0.78rem;
+  color: var(--color-error);
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+  .material-icons { font-size: 1.2rem; }
+}
+
+.btn--primary {
+  background: var(--color-gold);
+  color: #0f1117;
+  &:hover:not(:disabled) { background: var(--color-gold-light); box-shadow: var(--shadow-gold); }
+}
+
+.btn--secondary {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  &:hover:not(:disabled) { border-color: var(--color-gold); color: var(--color-gold); }
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  &:hover:not(:disabled) { color: var(--color-gold); }
+}
+
+.btn--full { width: 100%; }
+
+/* ── ALERTS ── */
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  .material-icons { font-size: 1.2rem; flex-shrink: 0; }
+}
+
+.alert--error {
+  background: var(--color-error-dim);
+  border: 1px solid rgba(255, 92, 92, 0.25);
+  color: #ff8a8a;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-md);
+}
+
+/* ── SPINNER ── */
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

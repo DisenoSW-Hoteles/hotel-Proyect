@@ -1,37 +1,56 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { AppError } from '../../utils/errors/AppError';
+import { AuthService } from '../../services/auth/AuthService';
+
+const authService = new AuthService();
 
 export class AuthController {
-  public login(req: Request, res: Response, next: NextFunction): void {
-    const { email, password } = req.body;
+  /**
+   * POST /api/auth/login
+   * Body: { email: string, password: string }
+   */
+  login(req: Request, res: Response, next: NextFunction): void {
+    try {
+      const { email, password } = req.body;
+      const result = authService.login(email, password);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
 
-    // HARDCODE (Mock) exclusivo para la presentación en vivo
-    if (email === 'admin@hotel.cl' && password === 'admin123') {
+  /**
+   * POST /api/auth/refresh
+   * Body: { refresh_token: string }
+   * Devuelve un nuevo access_token usando rotación de refresh token.
+   */
+  refresh(req: Request, res: Response, next: NextFunction): void {
+    try {
+      const { refresh_token } = req.body;
+      if (!refresh_token) {
+        res.status(400).json({ message: 'refresh_token es requerido.' });
+        return;
+      }
+      const result = authService.refreshAccessToken(refresh_token);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
 
-      // 1. Fabricamos la pulsera VIP (Token JWT) con la firma secreta
-      const token = jwt.sign(
-        { id: '1', email: email, role: 'SUPER_ADMIN' },
-        process.env.JWT_SECRET || 'secreto_super_seguro_desarrollo',
-        { expiresIn: '1h' }
-      );
-
-      // 2. Devolvemos la estructura JSON exacta que el frontend necesita mapear
-      res.status(200).json({
-        access_token: token,
-        token_type: 'Bearer',
-        expires_in: 3600,
-        user: {
-          id: '1',
-          email: email,
-          full_name: 'Administrador Principal',
-          role: 'SUPER_ADMIN',
-          branch: 'TEMUCO'
-        }
-      });
-    } else {
-      // Si el email o clave fallan, lanzamos un error que atrapará tu manejador global
-      next(new AppError('Credenciales inválidas. Verifique su email y contraseña.', 401));
+  /**
+   * POST /api/auth/logout
+   * Body: { refresh_token: string }
+   * Invalida el refresh token en el servidor (revocación explícita).
+   */
+  logout(req: Request, res: Response, next: NextFunction): void {
+    try {
+      const { refresh_token } = req.body;
+      if (refresh_token) {
+        authService.logout(refresh_token);
+      }
+      res.status(204).send();
+    } catch (err) {
+      next(err);
     }
   }
 }

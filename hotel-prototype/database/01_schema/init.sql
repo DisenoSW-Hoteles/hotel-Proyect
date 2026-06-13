@@ -93,6 +93,7 @@ CREATE TABLE reserva (
     precio_total NUMERIC(12,2) NOT NULL CHECK (precio_total >= 0),
     token_garantia VARCHAR(200),
     metodo_pago metodo_pago NOT NULL DEFAULT 'PENDIENTE',
+    codigo_confirmacion VARCHAR(20) UNIQUE,
     notas TEXT,
     creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -237,7 +238,9 @@ CREATE OR REPLACE FUNCTION fn_verificar_disponibilidad() RETURNS TRIGGER LANGUAG
 DECLARE v_conflicto INT; v_cap_maxima SMALLINT;
 BEGIN
     IF NEW.estado IN ('CANCELADA', 'NO_SHOW') THEN RETURN NEW; END IF;
-    SELECT COUNT(*) INTO v_conflicto FROM reserva WHERE habitacion_id = NEW.habitacion_id AND id != NEW.id AND estado NOT IN ('CANCELADA', 'NO_SHOW') AND fecha_entrada < NEW.fecha_salida AND fecha_salida > NEW.fecha_entrada FOR UPDATE;
+    -- Bloquea la fila de la habitación para serializar reservas concurrentes (anti-overbooking).
+    PERFORM 1 FROM habitacion WHERE id = NEW.habitacion_id FOR UPDATE;
+    SELECT COUNT(*) INTO v_conflicto FROM reserva WHERE habitacion_id = NEW.habitacion_id AND id != NEW.id AND estado NOT IN ('CANCELADA', 'NO_SHOW') AND fecha_entrada < NEW.fecha_salida AND fecha_salida > NEW.fecha_entrada;
     IF v_conflicto > 0 THEN RAISE EXCEPTION 'RN-14'; END IF;
     SELECT capacidad_maxima INTO v_cap_maxima FROM habitacion WHERE id = NEW.habitacion_id;
     IF NEW.num_huespedes > v_cap_maxima THEN RAISE EXCEPTION 'RN-02/03/04'; END IF;

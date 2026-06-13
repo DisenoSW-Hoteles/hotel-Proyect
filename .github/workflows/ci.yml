@@ -1,0 +1,201 @@
+name: CI — Hotel System
+
+on:
+  push:
+    branches: [main, develop, "feat/**", "fix/**"]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  NODE_VERSION: "20"
+  WORKING_DIR: hotel-prototype/backend
+
+jobs:
+  # ──────────────────────────────────────────────
+  # JOB 1: Linting y formato de código
+  # ──────────────────────────────────────────────
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      - name: Checkout código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: ESLint — verificar reglas de estilo TypeScript
+        run: npm run lint
+
+      - name: Prettier — verificar formato de código
+        run: npm run format:check
+
+  # ──────────────────────────────────────────────
+  # JOB 2: Tests unitarios + coverage
+  # ──────────────────────────────────────────────
+  test:
+    name: Tests & Coverage
+    runs-on: ubuntu-latest
+    needs: lint
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: hotel_test
+          POSTGRES_USER: hotel_user
+          POSTGRES_PASSWORD: hotel_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar tests con coverage
+        # jest.config.js ya define los reporters (incluido json-summary y lcov)
+        # y el coverageThreshold del 70%, que hace fallar el build automáticamente.
+        run: npm test
+        env:
+          NODE_ENV: test
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: hotel_test
+          DB_USER: hotel_user
+          DB_PASSWORD: hotel_pass
+          JWT_SECRET: jwt_secret_ci_testing_only
+
+      - name: Verificar umbral de cobertura (mínimo 70%)
+        run: |
+          COVERAGE=$(node -p "require('./coverage/coverage-summary.json').total.lines.pct")
+          echo "Cobertura de líneas: $COVERAGE%"
+          node -e "process.exit(require('./coverage/coverage-summary.json').total.lines.pct >= 70 ? 0 : 1)" \
+            || { echo "ERROR: La cobertura ($COVERAGE%) está por debajo del umbral mínimo (70%)"; exit 1; }
+
+      - name: Subir reporte de coverage como artefacto
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: ${{ env.WORKING_DIR }}/coverage/
+          retention-days: 14
+
+  # ──────────────────────────────────────────────
+  # JOB 3: Análisis de calidad con SonarQube
+  # ──────────────────────────────────────────────
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout código fuente (con historial completo para blame)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Regenerar coverage para SonarQube (formato lcov)
+        run: npm test
+        working-directory: ${{ env.WORKING_DIR }}
+        env:
+          NODE_ENV: test
+          JWT_SECRET: jwt_secret_ci_testing_only
+
+      - name: Análisis SonarQube
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=hotel-system
+            -Dsonar.projectName="Sistema Hotelero UCT"
+            -Dsonar.sources=hotel-prototype/backend/src
+            -Dsonar.exclusions=**/*.spec.ts,**/node_modules/**,**/dist/**
+            -Dsonar.tests=hotel-prototype/backend/src
+            -Dsonar.test.inclusions=**/*.spec.ts
+            -Dsonar.javascript.lcov.reportPaths=hotel-prototype/backend/coverage/lcov.info
+            -Dsonar.coverage.exclusions=**/server.ts,**/config/**,**/*.dto.ts
+            -Dsonar.qualitygate.wait=true
+
+      - name: Quality Gate — verificar resultado
+        uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+  # ──────────────────────────────────────────────
+  # JOB 4: Build de producción (verificación final)
+  # ──────────────────────────────────────────────
+  build:
+    name: Production Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      - name: Checkout código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: ${{ env.WORKING_DIR }}/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar TypeScript a JavaScript
+        run: npm run build
+
+      - name: Verificar que el binario de producción arranca
+        run: timeout 5 node dist/server.js || true
+        env:
+          NODE_ENV: production
+          PORT: 3000
+          JWT_SECRET: jwt_secret_build_check

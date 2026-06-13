@@ -1,165 +1,209 @@
-.buscador-container {
-  max-width: 960px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+:host {
+  display: block;
 }
 
-h2 {
-  margin-bottom: 1.5rem;
-  color: #1a1a2e;
+/* ── HERO ── */
+.hero {
+  position: relative;
+  padding: 4rem 1.5rem 7rem;
+  text-align: center;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(212, 175, 92, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 30%, rgba(92, 158, 255, 0.06) 0%, transparent 50%),
+    var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.buscador-form {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+.hero__content {
+  max-width: 720px;
+  margin: 0 auto;
 }
 
-.form-row {
+.hero__eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-gold);
+  margin-bottom: 1rem;
+}
+
+.hero__title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 1rem;
+}
+
+.hero__subtitle {
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* ── PAGE ── */
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+/* ── SEARCH CARD (se superpone al hero) ── */
+.search-card {
+  margin-top: -4rem;
+  position: relative;
+  z-index: 2;
+}
+
+.search-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: 1.4fr 1fr 1fr 0.8fr auto;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  align-items: end;
 }
 
-.form-group {
+.form-field {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  margin-bottom: 1.25rem;
 }
 
-.error-text {
-  font-size: 0.8rem;
-  color: #dc3545;
+.search-submit .btn {
+  height: 100%;
+  min-height: 44px;
+  padding-inline: 1.75rem;
 }
 
-.form-group label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #495057;
-}
-
-.form-group select,
-.form-group input {
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #ced4da;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: border-color 0.2s;
-}
-
-.form-group select:focus,
-.form-group input:focus {
-  outline: none;
-  border-color: #1a73e8;
-  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
-}
-
-.btn-primary {
-  background: #1a73e8;
-  color: #fff;
-  border: none;
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #1557b0;
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.error-mensaje {
+.search-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   margin-top: 1rem;
-  padding: 0.75rem 1rem;
-  background: #f8d7da;
-  color: #721c24;
-  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  .material-icons { font-size: 1.05rem; color: var(--color-gold); }
 }
 
-.sin-resultados {
-  margin-top: 1.5rem;
-  text-align: center;
-  color: #6c757d;
+.field-error { margin-top: 0.75rem; display: block; }
+
+.spinner--dark { border-color: rgba(15, 17, 23, 0.3); border-top-color: #0f1117; }
+
+/* ── RESULTS HEADER ── */
+.results-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin: 2.5rem 0 1.25rem;
 }
 
-.resultados {
-  margin-top: 2rem;
-}
-
-.resultados h3 {
-  margin-bottom: 1rem;
-  color: #1a1a2e;
-}
-
-.habitaciones-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-}
-
-.habitacion-card {
-  background: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 12px;
-  padding: 1.25rem;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.habitacion-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-}
-
-.habitacion-tipo {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #1a73e8;
-  margin-bottom: 0.5rem;
-}
-
-.habitacion-capacidad {
-  font-size: 0.875rem;
-  color: #6c757d;
-  margin-bottom: 0.5rem;
-}
-
-.habitacion-descripcion {
-  font-size: 0.9rem;
-  color: #495057;
-  margin-bottom: 1rem;
-  line-height: 1.4;
-}
-
-.habitacion-precio {
+.results-header h2 {
   font-size: 1.25rem;
-  font-weight: 700;
-  color: #2d6a4f;
-  margin-bottom: 1rem;
-}
-
-.btn-seleccionar {
-  width: 100%;
-  padding: 0.5rem;
-  background: #2d6a4f;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
   font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
 }
 
-.btn-seleccionar:hover {
-  background: #1b4332;
+.results-sub { color: var(--color-text-muted); font-size: 0.95rem; }
+
+/* ── ROOMS GRID ── */
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.room-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba(212, 175, 92, 0.4);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+.room-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.room-card__icon {
+  width: 44px;
+  height: 44px;
+  background: var(--color-gold-dim);
+  border: 1px solid rgba(212, 175, 92, 0.3);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gold);
+  font-size: 1.4rem;
+}
+
+.room-card__type {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.room-card__desc {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  flex: 1;
+}
+
+.room-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+  .material-icons { font-size: 1.05rem; }
+}
+
+.room-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.room-card__price {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  .amount { font-size: 1.35rem; font-weight: 700; color: var(--color-gold); font-family: var(--font-mono); }
+  .per { font-size: 0.75rem; color: var(--color-text-dim); }
+}
+
+.room-card__footer .btn .material-icons { font-size: 1.1rem; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  .material-icons { font-size: 3rem; color: var(--color-text-dim); margin-bottom: 0.5rem; }
+  h3 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+  p { color: var(--color-text-muted); font-size: 0.9rem; }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .search-grid { grid-template-columns: 1fr 1fr; }
+  .search-submit { grid-column: 1 / -1; }
+}
+
+@media (max-width: 520px) {
+  .search-grid { grid-template-columns: 1fr; }
+  .search-card { margin-top: -2.5rem; }
 }

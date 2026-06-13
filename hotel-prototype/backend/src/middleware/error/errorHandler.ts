@@ -5,7 +5,7 @@ export const errorHandler = (
   err: Error | AppError,
   _req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ) => {
   let statusCode = 500;
   let message = 'Error interno del servidor';

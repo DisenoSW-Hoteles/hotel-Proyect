@@ -1,8 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { TipoServicio, CrearReservaDTO, ReservaDTO } from 'shared-models';
+import { TipoServicio, CrearReservaDTO, ReservaDTO, Sucursal } from 'shared-models';
 import { IDisponibilidadService, DISPONIBILIDAD_SERVICE } from '../../services/disponibilidad.interface';
 import { ReservaEstadoService } from '../../services/reserva-estado.service';
 
@@ -30,6 +30,17 @@ export class FormularioReserva {
 
   readonly habitacion = this.reservaEstado.habitacionSeleccionada;
   readonly consulta = this.reservaEstado.consultaActual;
+
+  /** Noches según las fechas de la consulta (mínimo 1). */
+  readonly noches = computed(() => {
+    const c = this.consulta();
+    if (!c?.fechaCheckIn || !c?.fechaCheckOut) return 1;
+    const diff = new Date(c.fechaCheckOut).getTime() - new Date(c.fechaCheckIn).getTime();
+    return Math.max(1, Math.round(diff / 86400000));
+  });
+
+  /** Total estimado = precio por noche × noches (referencial; el backend confirma el valor real). */
+  readonly totalEstimado = computed(() => (this.habitacion()?.precioPorNoche ?? 0) * this.noches());
 
   readonly form = this.fb.nonNullable.group({
     huespedNombre: ['', [Validators.required, Validators.minLength(3)]],
@@ -61,7 +72,7 @@ export class FormularioReserva {
 
     const payload: CrearReservaDTO = {
       habitacionId: this.habitacion()!.id,
-      sucursalId: this.consulta()!.sucursalNombre,
+      sucursalId: this.consulta()!.sucursalNombre as Sucursal,
       fechaCheckIn: this.consulta()!.fechaCheckIn,
       fechaCheckOut: this.consulta()!.fechaCheckOut,
       cantidadHuespedes: this.consulta()!.cantidadHuespedes,

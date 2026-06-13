@@ -27,7 +27,7 @@ export const verificarToken = (req: AuthRequest, res: Response, next: NextFuncti
     // 4. Si es válida, inyectamos los datos del usuario en la petición y le abrimos la puerta
     req.user = decoded;
     next();
-  } catch (error) {
+  } catch {
     // Si la verificación falla (token modificado o expirado), el guardia te saca
     return next(new AppError('Token inválido o expirado.', 401));
   }

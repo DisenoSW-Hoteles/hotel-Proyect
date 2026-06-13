@@ -1,7 +1,7 @@
 export enum TipoHabitacion {
   Estandar = 'Estandar',
   Plus = 'Plus',
-  SuiteEjecutiva = 'SuiteEjecutiva'
+  SuiteEjecutiva = 'SuiteEjecutiva',
 }
 
 export interface ConsultaDisponibilidadDTO {

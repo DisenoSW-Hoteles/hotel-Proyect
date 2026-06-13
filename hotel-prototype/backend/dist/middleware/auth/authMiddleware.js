@@ -5,13 +5,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verificarToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const AppError_js_1 = require("../../utils/errors/AppError.js");
+const AppError_1 = require("../../utils/errors/AppError");
 const verificarToken = (req, res, next) => {
     // 1. Extraer el header de Autorización
     const authHeader = req.headers.authorization;
     // Si no hay header o no empieza con "Bearer ", el guardia te detiene
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return next(new AppError_js_1.AppError('No estás autenticado. Por favor, inicia sesión.', 401));
+        return next(new AppError_1.AppError('No estás autenticado. Por favor, inicia sesión.', 401));
     }
     // 2. Extraer solo el token (Ignorar la palabra "Bearer ")
     const token = authHeader.split(' ')[1];
@@ -23,9 +23,9 @@ const verificarToken = (req, res, next) => {
         req.user = decoded;
         next();
     }
-    catch (error) {
+    catch {
         // Si la verificación falla (token modificado o expirado), el guardia te saca
-        return next(new AppError_js_1.AppError('Token inválido o expirado.', 401));
+        return next(new AppError_1.AppError('Token inválido o expirado.', 401));
     }
 };
 exports.verificarToken = verificarToken;

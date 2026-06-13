@@ -7,7 +7,7 @@ exports.AppDataSource = void 0;
 require("reflect-metadata");
 const typeorm_1 = require("typeorm");
 const dotenv_1 = __importDefault(require("dotenv"));
-const Habitacion_entity_js_1 = require("../models/entities/Habitacion.entity.js");
+const Habitacion_entity_1 = require("../models/entities/Habitacion.entity");
 // Esto carga tu archivo .env en la bóveda global process.env
 dotenv_1.default.config();
 exports.AppDataSource = new typeorm_1.DataSource({
@@ -20,6 +20,6 @@ exports.AppDataSource = new typeorm_1.DataSource({
     database: process.env.DB_NAME || 'hotel_db',
     synchronize: false,
     logging: true,
-    entities: [Habitacion_entity_js_1.Habitacion],
+    entities: [Habitacion_entity_1.Habitacion],
     subscribers: [],
 });

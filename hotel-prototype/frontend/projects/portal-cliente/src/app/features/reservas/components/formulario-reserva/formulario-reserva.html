@@ -1,84 +1,136 @@
 @if (confirmacion(); as reserva) {
-  <div class="confirmacion-container">
-    <div class="confirmacion-card">
-      <div class="confirmacion-icono">&#10003;</div>
-      <h2>Reserva Confirmada</h2>
-      <p class="confirmacion-id">Folio: #{{ reserva.id }}</p>
-      <div class="confirmacion-detalles">
-        <div class="detalle"><span>Huésped:</span> {{ reserva.huespedNombre }}</div>
-        <div class="detalle"><span>Habitación:</span> {{ reserva.tipoHabitacion }}</div>
-        <div class="detalle"><span>Check-in:</span> {{ reserva.fechaCheckIn }}</div>
-        <div class="detalle"><span>Check-out:</span> {{ reserva.fechaCheckOut }}</div>
-        <div class="detalle"><span>Total estimado:</span> ${{ reserva.totalEstimado | number }}</div>
+  <!-- ── CONFIRMACIÓN ── -->
+  <div class="page page--narrow">
+    <div class="success-card card">
+      <span class="success-card__icon material-icons">check_circle</span>
+      <h2>¡Reserva confirmada!</h2>
+      <p class="success-card__folio">Folio único <strong>#{{ reserva.id }}</strong></p>
+
+      <div class="confirm-list">
+        <div class="confirm-row">
+          <span class="material-icons">person</span>
+          <span class="confirm-row__label">Huésped</span>
+          <span class="confirm-row__value">{{ reserva.huespedNombre }}</span>
+        </div>
+        <div class="confirm-row">
+          <span class="material-icons">hotel</span>
+          <span class="confirm-row__label">Habitación</span>
+          <span class="confirm-row__value">{{ reserva.tipoHabitacion }}</span>
+        </div>
+        <div class="confirm-row">
+          <span class="material-icons">login</span>
+          <span class="confirm-row__label">Llegada</span>
+          <span class="confirm-row__value">{{ reserva.fechaCheckIn }}</span>
+        </div>
+        <div class="confirm-row">
+          <span class="material-icons">logout</span>
+          <span class="confirm-row__label">Salida</span>
+          <span class="confirm-row__value">{{ reserva.fechaCheckOut }}</span>
+        </div>
+        <div class="confirm-row confirm-row--total">
+          <span class="material-icons">payments</span>
+          <span class="confirm-row__label">Total estimado</span>
+          <span class="confirm-row__value">${{ reserva.totalEstimado | number }}</span>
+        </div>
       </div>
-      <button (click)="nuevaReserva()" class="btn-primary">Nueva Reserva</button>
+
+      <button type="button" (click)="nuevaReserva()" class="btn btn--primary btn--full">
+        <span class="material-icons">add</span> Hacer otra reserva
+      </button>
     </div>
   </div>
 } @else {
-  <div class="formulario-container">
-    <h2>Confirmar Reserva</h2>
+  <!-- ── FORMULARIO ── -->
+  <div class="page page--narrow">
+    <div class="confirm-header">
+      <h1>Confirma tu reserva</h1>
+      <p>Estás a un paso. Completa tus datos para asegurar la habitación.</p>
+    </div>
 
     @if (habitacion(); as h) {
-      <div class="resumen-habitacion">
-        <span class="resumen-tipo">{{ h.tipoHabitacion }}</span>
-        <span class="resumen-precio">${{ h.precioPorNoche | number }} / noche</span>
+      <div class="summary-banner card">
+        <div class="summary-banner__icon material-icons">hotel</div>
+        <div class="summary-banner__info">
+          <h2>{{ h.tipoHabitacion }}</h2>
+          @if (consulta(); as c) {
+            <p>{{ c.fechaCheckIn }} → {{ c.fechaCheckOut }} · {{ noches() }} noche(s)</p>
+          }
+        </div>
+        <div class="summary-banner__price">
+          <span class="amount">${{ totalEstimado() | number }}</span>
+          <span class="per">${{ h.precioPorNoche | number }} / noche</span>
+        </div>
       </div>
     }
 
-    <form [formGroup]="form" (ngSubmit)="reservar()" class="reserva-form">
-      <div class="form-group">
+    <form [formGroup]="form" (ngSubmit)="reservar()" class="reserva-form card">
+      <h3 class="reserva-form__title">Datos del huésped</h3>
+
+      <div class="form-field">
         <label for="nombre">Nombre completo</label>
-        <input id="nombre" type="text" formControlName="huespedNombre" placeholder="Ej: Juan Pérez" />
+        <input id="nombre" class="input" type="text" formControlName="huespedNombre"
+          placeholder="Ej: Juan Pérez"
+          [class.input--error]="form.controls.huespedNombre.touched && form.controls.huespedNombre.invalid" />
         @if (form.controls.huespedNombre.touched && form.controls.huespedNombre.invalid) {
-          <span class="error-text">Nombre requerido (mín. 3 caracteres)</span>
+          <span class="field-error">Nombre requerido (mínimo 3 caracteres).</span>
         }
       </div>
 
-      <div class="form-group">
+      <div class="form-field">
         <label for="email">Correo electrónico</label>
-        <input id="email" type="email" formControlName="huespedEmail" placeholder="ejemplo@correo.com" />
+        <input id="email" class="input" type="email" formControlName="huespedEmail"
+          placeholder="ejemplo@correo.com"
+          [class.input--error]="form.controls.huespedEmail.touched && form.controls.huespedEmail.invalid" />
         @if (form.controls.huespedEmail.touched && form.controls.huespedEmail.invalid) {
-          <span class="error-text">Ingresa un email válido</span>
+          <span class="field-error">Ingresa un email válido.</span>
         }
       </div>
 
-      <div class="form-group">
+      <div class="form-field">
         <label for="telefono">Teléfono</label>
-        <input id="telefono" type="tel" formControlName="huespedTelefono" placeholder="+56 9 1234 5678" />
+        <input id="telefono" class="input" type="tel" formControlName="huespedTelefono"
+          placeholder="+56 9 1234 5678"
+          [class.input--error]="form.controls.huespedTelefono.touched && form.controls.huespedTelefono.invalid" />
         @if (form.controls.huespedTelefono.touched && form.controls.huespedTelefono.invalid) {
-          <span class="error-text">Ingresa un teléfono válido (8-15 dígitos)</span>
+          <span class="field-error">Ingresa un teléfono válido (8 a 15 dígitos).</span>
         }
       </div>
 
-      <div class="form-group">
+      <div class="form-field">
         <label>Servicios adicionales</label>
-        <div class="servicios-opciones">
+        <div class="servicios">
           @for (s of serviciosDisponibles; track s.value) {
-            <label class="servicio-item">
-              <input
-                type="checkbox"
-                [checked]="form.controls.servicios.value.includes(s.value)"
-                (change)="toggleServicio(s.value)"
-              />
+            <button type="button" class="servicio-chip"
+              [class.servicio-chip--active]="form.controls.servicios.value.includes(s.value)"
+              (click)="toggleServicio(s.value)">
+              <span class="material-icons">
+                {{ form.controls.servicios.value.includes(s.value) ? 'check_circle' : 'add_circle_outline' }}
+              </span>
               {{ s.label }}
-            </label>
+            </button>
           }
         </div>
       </div>
 
       @if (error()) {
-        <div class="error-mensaje">{{ error() }}</div>
+        <div class="alert alert--error">
+          <span class="material-icons">error_outline</span>
+          {{ error() }}
+        </div>
       }
 
-      <button type="submit" [disabled]="form.invalid || loading()" class="btn-primary">
-        @if (loading()) {
-          Procesando...
-        } @else {
-          Confirmar y Reservar
-        }
-      </button>
-
-      <a routerLink="/reservas/buscar" class="btn-link">Volver a buscar</a>
+      <div class="reserva-form__actions">
+        <a routerLink="/reservas/buscar" class="btn btn--ghost">
+          <span class="material-icons">arrow_back</span> Volver
+        </a>
+        <button type="submit" class="btn btn--primary" [disabled]="form.invalid || loading()">
+          @if (loading()) {
+            <span class="spinner spinner--dark"></span> Procesando…
+          } @else {
+            <span class="material-icons">lock</span> Confirmar reserva
+          }
+        </button>
+      </div>
     </form>
   </div>
 }

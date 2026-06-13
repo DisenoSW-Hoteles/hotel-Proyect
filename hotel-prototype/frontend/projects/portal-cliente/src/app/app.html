@@ -1,1 +1,23 @@
-<router-outlet></router-outlet>
+<div class="portal-shell">
+  <header class="portal-header">
+    <a class="portal-brand" routerLink="/reservas/buscar">
+      <span class="portal-brand__logo material-icons">apartment</span>
+      <span class="portal-brand__text">
+        <span class="portal-brand__name">Hotel UCT</span>
+        <span class="portal-brand__sub">Reservas en línea</span>
+      </span>
+    </a>
+    <nav class="portal-nav">
+      <a routerLink="/reservas/buscar">Buscar habitaciones</a>
+    </nav>
+  </header>
+
+  <main class="portal-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="portal-footer">
+    <span class="material-icons">verified_user</span>
+    Sistema centralizado de reservas · 4 sucursales · Temuco · Pucón · Santiago · Viña del Mar
+  </footer>
+</div>

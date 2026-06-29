@@ -3,10 +3,13 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "start": "ng serve panel-admin",
+    "start:client": "ng build shared-models && ng serve --project portal-cliente --open",
+    "build": "ng build panel-admin",
+    "build:client": "ng build portal-cliente",
+    "watch": "ng build panel-admin --watch --configuration development",
+    "test": "ng test panel-admin",
+    "test:client": "ng test portal-cliente"
   },
   "private": true,
   "packageManager": "npm@11.12.1",

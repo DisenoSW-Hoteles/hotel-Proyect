@@ -1,79 +1,148 @@
-<div class="buscador-container">
-  <h2>Buscar Disponibilidad</h2>
+<div class="buscador-page">
+  <div class="buscador-container">
+    <div class="page-header">
+      <div class="header-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+      </div>
+      <div>
+        <h1>Buscar Disponibilidad</h1>
+        <p>Encuentra la habitación ideal para tu estadía</p>
+      </div>
+    </div>
 
-  <form [formGroup]="form" (ngSubmit)="buscar()" class="buscador-form">
-    <div class="form-row">
-      <div class="form-group">
-        <label for="sucursal">Sucursal</label>
-        <select id="sucursal" formControlName="sucursalNombre">
-          <option value="">Selecciona una sucursal</option>
-          @for (s of sucursales; track s) {
-            <option [value]="s">{{ s }}</option>
+    <form [formGroup]="form" (ngSubmit)="buscar()" class="card">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="sucursal">Sucursal</label>
+          <select id="sucursal" formControlName="sucursalId" class="input">
+            <option value="">Selecciona una sucursal</option>
+            @for (s of sucursales; track s) {
+              <option [value]="s">{{ sucursalLabel[s] }}</option>
+            }
+          </select>
+          @if (f.sucursalId.touched && f.sucursalId.invalid) {
+            <span class="field-error">Selecciona una sucursal</span>
           }
-        </select>
-        @if (f.sucursalNombre.touched && f.sucursalNombre.invalid) {
-          <span class="error-text">Selecciona una sucursal</span>
-        }
+        </div>
+
+        <div class="form-field">
+          <label for="checkIn">Check-in</label>
+          <input id="checkIn" type="date" formControlName="fechaCheckIn" class="input" [attr.min]="hoy" />
+          @if (f.fechaCheckIn.touched && f.fechaCheckIn.invalid) {
+            @if (f.fechaCheckIn.hasError('required')) {
+              <span class="field-error">La fecha de check-in es requerida</span>
+            }
+            @if (f.fechaCheckIn.hasError('fechaPasada')) {
+              <span class="field-error">El check-in no puede ser una fecha pasada</span>
+            }
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="checkOut">Check-out</label>
+          <input id="checkOut" type="date" formControlName="fechaCheckOut" class="input" [attr.min]="f.fechaCheckIn.value || hoy" />
+          @if (f.fechaCheckOut.touched && f.fechaCheckOut.invalid) {
+            @if (f.fechaCheckOut.hasError('required')) {
+              <span class="field-error">La fecha de check-out es requerida</span>
+            }
+            @if (f.fechaCheckOut.hasError('fechaPosterior')) {
+              <span class="field-error">El check-out debe ser posterior al check-in</span>
+            }
+          }
+        </div>
+
+        <div class="form-field form-field--narrow">
+          <label for="huespedes">Huéspedes</label>
+          <input id="huespedes" type="number" formControlName="cantidadHuespedes" min="1" max="10" class="input" />
+          @if (f.cantidadHuespedes.touched && f.cantidadHuespedes.invalid) {
+            <span class="field-error">Entre 1 y 10</span>
+          }
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="checkIn">Check-in</label>
-        <input id="checkIn" type="date" formControlName="fechaCheckIn" />
-        @if (f.fechaCheckIn.touched && f.fechaCheckIn.invalid) {
-          <span class="error-text">Fecha requerida</span>
+      <button type="submit" [disabled]="form.invalid || loading()" class="btn btn--primary btn--full">
+        @if (loading()) {
+          <span class="spinner"></span>
+          Buscando...
+        } @else {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+          Buscar Habitaciones
         }
+      </button>
+    </form>
+
+    @if (error()) {
+      <div class="alert alert--error">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="15" y1="9" x2="9" y2="15" />
+          <line x1="9" y1="9" x2="15" y2="15" />
+        </svg>
+        <span>{{ error() }}</span>
       </div>
+    }
 
-      <div class="form-group">
-        <label for="checkOut">Check-out</label>
-        <input id="checkOut" type="date" formControlName="fechaCheckOut" />
-        @if (f.fechaCheckOut.touched && f.fechaCheckOut.invalid) {
-          <span class="error-text">Fecha requerida</span>
-        }
+    @if (buscado() && habitaciones().length === 0) {
+      <div class="card card--empty">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <path d="M8 21h8M12 17v4" />
+          </svg>
+        </div>
+        <h3>Sin resultados</h3>
+        <p>No hay habitaciones disponibles para los criterios seleccionados. Intenta con otras fechas o sucursal.</p>
       </div>
+    }
 
-      <div class="form-group">
-        <label for="huespedes">Huéspedes</label>
-        <input id="huespedes" type="number" formControlName="cantidadHuespedes" min="1" max="10" />
-        @if (f.cantidadHuespedes.touched && f.cantidadHuespedes.invalid) {
-          <span class="error-text">Entre 1 y 10 personas</span>
-        }
+    @if (habitaciones().length > 0) {
+      <div class="resultados">
+        <h3>{{ habitaciones().length }} habitación(es) disponible(s)</h3>
+        <div class="table-wrapper">
+          <table class="habitaciones-tabla">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Capacidad</th>
+                <th>Descripción</th>
+                <th>Precio / Noche</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (h of habitaciones(); track h.id) {
+                <tr (click)="seleccionar(h)">
+                  <td>
+                    <span class="tipo-badge">{{ h.tipoHabitacion }}</span>
+                  </td>
+                  <td>
+                    <span class="capacidad-valor">{{ h.capacidadMaxima }} persona(s)</span>
+                  </td>
+                  <td class="desc-col">{{ h.descripcionBreve }}</td>
+                  <td class="precio-col">
+                    @if (h.precioPorNoche > 0) {
+                      <span class="precio-valor">${{ h.precioPorNoche | number }}</span>
+                    } @else {
+                      <span class="precio-consulta">Consultar</span>
+                    }
+                  </td>
+                  <td>
+                    <button class="btn btn--primary btn--sm" (click)="$event.stopPropagation(); seleccionar(h)">
+                      Reservar
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-
-    <button type="submit" [disabled]="form.invalid || loading()" class="btn-primary">
-      @if (loading()) {
-        Buscando...
-      } @else {
-        Buscar Habitaciones
-      }
-    </button>
-  </form>
-
-  @if (error()) {
-    <div class="error-mensaje">{{ error() }}</div>
-  }
-
-  @if (buscado() && habitaciones().length === 0) {
-    <div class="sin-resultados">
-      <p>No hay habitaciones disponibles para los criterios seleccionados.</p>
-    </div>
-  }
-
-  @if (habitaciones().length > 0) {
-    <div class="resultados">
-      <h3>Habitaciones Disponibles</h3>
-      <div class="habitaciones-grid">
-        @for (h of habitaciones(); track h.id) {
-          <div class="habitacion-card" (click)="seleccionar(h)">
-            <div class="habitacion-tipo">{{ h.tipoHabitacion }}</div>
-            <div class="habitacion-capacidad">Capacidad: {{ h.capacidadMaxima }} persona(s)</div>
-            <div class="habitacion-descripcion">{{ h.descripcionBreve }}</div>
-            <div class="habitacion-precio">${{ h.precioPorNoche | number }} / noche</div>
-            <button class="btn-seleccionar">Seleccionar</button>
-          </div>
-        }
-      </div>
-    </div>
-  }
+    }
+  </div>
 </div>

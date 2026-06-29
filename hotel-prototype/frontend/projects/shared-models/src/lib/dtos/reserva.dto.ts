@@ -1,4 +1,3 @@
-import { Sucursal } from '../enums/sucursal.enum';
 import { TipoHabitacion } from '../enums/tipo-habitacion.enum';
 import { TipoServicio } from '../enums/tipo-servicio.enum';
 
@@ -6,7 +5,7 @@ export interface ReservaDTO {
   id: number;
   habitacionId: number;
   tipoHabitacion: TipoHabitacion;
-  sucursalId: Sucursal;
+  sucursalNombre: string;
   fechaCheckIn: string;
   fechaCheckOut: string;
   cantidadHuespedes: number;

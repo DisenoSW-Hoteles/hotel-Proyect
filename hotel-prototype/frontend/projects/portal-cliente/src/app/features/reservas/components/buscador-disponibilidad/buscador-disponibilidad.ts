@@ -4,7 +4,16 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Sucursal, ConsultaDisponibilidadDTO, HabitacionDisponibleDTO } from 'shared-models';
 import { IDisponibilidadService, DISPONIBILIDAD_SERVICE } from '../../services/disponibilidad.interface';
+import { mapSucursalToApi } from '../../services/disponibilidad';
 import { ReservaEstadoService } from '../../services/reserva-estado.service';
+import { fechaCheckInNoPasada, fechasValidator } from '../../../../shared/validators/fecha.validators';
+
+const SUCURSAL_LABELS: Record<Sucursal, string> = {
+  [Sucursal.Temuco]: 'Temuco',
+  [Sucursal.Pucon]: 'Pucón',
+  [Sucursal.Santiago]: 'Santiago',
+  [Sucursal.Vina_Del_Mar]: 'Viña del Mar',
+};
 
 @Component({
   selector: 'app-buscador-disponibilidad',
@@ -18,18 +27,21 @@ export class BuscadorDisponibilidad {
   private readonly router = inject(Router);
   private readonly reservaEstado = inject(ReservaEstadoService);
 
+  readonly hoy = new Date().toISOString().split('T')[0];
+
   readonly sucursales = Object.values(Sucursal);
+  readonly sucursalLabel = SUCURSAL_LABELS;
   readonly habitaciones = signal<HabitacionDisponibleDTO[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly buscado = signal(false);
 
   readonly form = this.fb.nonNullable.group({
-    sucursalNombre: ['', Validators.required],
-    fechaCheckIn: ['', Validators.required],
+    sucursalId: ['' as Sucursal, Validators.required],
+    fechaCheckIn: ['', [Validators.required, fechaCheckInNoPasada()]],
     fechaCheckOut: ['', Validators.required],
     cantidadHuespedes: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
-  });
+  }, { validators: fechasValidator });
 
   get f() { return this.form.controls; }
 
@@ -40,7 +52,13 @@ export class BuscadorDisponibilidad {
     this.error.set(null);
     this.buscado.set(false);
 
-    const consulta = this.form.getRawValue() as ConsultaDisponibilidadDTO;
+    const raw = this.form.getRawValue();
+    const consulta: ConsultaDisponibilidadDTO = {
+      fechaCheckIn: raw.fechaCheckIn,
+      fechaCheckOut: raw.fechaCheckOut,
+      cantidadHuespedes: raw.cantidadHuespedes,
+      sucursalNombre: mapSucursalToApi(raw.sucursalId),
+    };
 
     this.disponibilidadService.buscarDisponibilidad(consulta).subscribe({
       next: (resultados) => {
@@ -56,7 +74,13 @@ export class BuscadorDisponibilidad {
   }
 
   seleccionar(habitacion: HabitacionDisponibleDTO): void {
-    const consulta = this.form.getRawValue() as ConsultaDisponibilidadDTO;
+    const raw = this.form.getRawValue();
+    const consulta: ConsultaDisponibilidadDTO = {
+      fechaCheckIn: raw.fechaCheckIn,
+      fechaCheckOut: raw.fechaCheckOut,
+      cantidadHuespedes: raw.cantidadHuespedes,
+      sucursalNombre: mapSucursalToApi(raw.sucursalId),
+    };
     this.reservaEstado.seleccionarHabitacion(habitacion, consulta);
     this.router.navigate(['/reservas/confirmar']);
   }

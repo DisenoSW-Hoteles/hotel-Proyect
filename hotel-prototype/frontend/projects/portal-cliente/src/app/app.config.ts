@@ -1,21 +1,23 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
-import { routes } from './app.routes';
-import { API_BASE_URL } from './config/api.config';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 
-// 1. Importamos el "Cargo" (El Token) y al "Empleado" (La Clase Concreta)
+import { routes } from './app.routes';
+import { environment } from '../environments/environment';
+import { API_BASE_URL } from './config/api.config';
 import { DISPONIBILIDAD_SERVICE } from './features/reservas/services/disponibilidad.interface';
 import { DisponibilidadService } from './features/reservas/services/disponibilidad';
+import { DisponibilidadMockService } from './features/reservas/services/disponibilidad-mock.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(),
-    { provide: API_BASE_URL, useValue: 'http://127.0.0.1:3000/api' },
-
-    // 2. Registramos el contrato: Cuando pidan el token, usa esta clase
-    { provide: DISPONIBILIDAD_SERVICE, useClass: DisponibilidadService }
-  ]
+    provideHttpClient(withFetch()),
+    { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
+    {
+      provide: DISPONIBILIDAD_SERVICE,
+      useClass: environment.useMock ? DisponibilidadMockService : DisponibilidadService,
+    },
+  ],
 };

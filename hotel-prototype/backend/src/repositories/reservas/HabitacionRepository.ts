@@ -4,6 +4,10 @@ import { ConsultaDisponibilidadDTO } from '../../models/dtos/Habitacion.dto';
 
 export const HabitacionRepository = AppDataSource.getRepository(Habitacion).extend({
 
+  async buscarTodas() {
+    return this.find();
+  },
+
   async buscarDisponibles(consulta: ConsultaDisponibilidadDTO) {
     const { fechaCheckIn, fechaCheckOut, cantidadHuespedes, sucursalNombre } = consulta;
 
@@ -24,10 +28,5 @@ export const HabitacionRepository = AppDataSource.getRepository(Habitacion).exte
       .setParameter('fechaCheckIn', fechaCheckIn)
       .setParameter('fechaCheckOut', fechaCheckOut)
       .getMany();
-  },
-  async buscarTodas() {
-  const repo = AppDataSource.getRepository(Habitacion);
-  // Traemos todas las habitaciones
-  return await repo.find();
-}
+  }
 });

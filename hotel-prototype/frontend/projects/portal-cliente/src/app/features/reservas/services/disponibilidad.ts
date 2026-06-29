@@ -11,7 +11,7 @@ function mapSucursalToApi(sucursal: Sucursal): string {
     [Sucursal.Temuco]: 'Temuco',
     [Sucursal.Pucon]: 'Pucon',
     [Sucursal.Santiago]: 'Santiago',
-    [Sucursal.VinaDelMar]: 'Vina_del_mar',
+    [Sucursal.Vina_Del_Mar]: 'Vina_del_mar',
   };
   return map[sucursal];
 }
@@ -24,7 +24,7 @@ export class DisponibilidadService implements IDisponibilidadService {
   ) {}
 
   buscarDisponibilidad(consulta: ConsultaDisponibilidadDTO): Observable<HabitacionDisponibleDTO[]> {
-    return this.http.post<HabitacionDisponibleDTO[]>(`${this.apiUrl}/reservas/disponibilidad`, consulta);
+    return this.http.post<HabitacionDisponibleDTO[]>(`${this.apiUrl}/habitaciones/disponibilidad`, consulta);
   }
 
   crearReserva(reserva: CrearReservaDTO): Observable<ReservaDTO> {

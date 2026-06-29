@@ -10,4 +10,6 @@ export interface CrearReservaDTO {
   huespedEmail: string;
   huespedTelefono: string;
   servicios: TipoServicio[];
+  tipoDocumento?: 'RUT' | 'PASAPORTE';
+  documentoNum?: string;
 }

@@ -1,37 +1,89 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { AppError } from '../../utils/errors/AppError';
+import { Request, Response, NextFunction } from "express"
+import jwt from "jsonwebtoken"
+import { AppError } from "../../utils/errors/AppError"
+import { IAuthService } from "../../interfaces/IAuthService"
+import { ITokenRepository } from "../../interfaces/ITokenRepository"
+
+const SECRET = process.env.JWT_SECRET!
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!
 
 export class AuthController {
-  public login(req: Request, res: Response, next: NextFunction): void {
-    const { email, password } = req.body;
+    constructor(
+        private readonly authService: IAuthService,
+        private readonly tokenRepository: ITokenRepository,
+    ) {}
 
-    // HARDCODE (Mock) exclusivo para la presentación en vivo
-    if (email === 'admin@hotel.cl' && password === 'admin123') {
+    login(req: Request, res: Response, next: NextFunction): void {
+        const { email, password } = req.body
 
-      // 1. Fabricamos la pulsera VIP (Token JWT) con la firma secreta
-      const token = jwt.sign(
-        { id: '1', email: email, role: 'SUPER_ADMIN' },
-        process.env.JWT_SECRET || 'secreto_super_seguro_desarrollo',
-        { expiresIn: '1h' }
-      );
-
-      // 2. Devolvemos la estructura JSON exacta que el frontend necesita mapear
-      res.status(200).json({
-        access_token: token,
-        token_type: 'Bearer',
-        expires_in: 3600,
-        user: {
-          id: '1',
-          email: email,
-          full_name: 'Administrador Principal',
-          role: 'SUPER_ADMIN',
-          branch: 'TEMUCO'
+        try {
+            const result = this.authService.login(email, password)
+            res.status(200).json({
+                access_token: result.accessToken,
+                refresh_token: result.refreshToken,
+                token_type: "Bearer",
+                expires_in: 900,
+                user: {
+                    id: result.user.id,
+                    email: result.user.email,
+                    full_name: result.user.fullName,
+                    role: result.user.role,
+                    branch: result.user.branch,
+                },
+            })
+        } catch (error) {
+            next(error)
         }
-      });
-    } else {
-      // Si el email o clave fallan, lanzamos un error que atrapará tu manejador global
-      next(new AppError('Credenciales inválidas. Verifique su email y contraseña.', 401));
     }
-  }
+
+    refresh(req: Request, res: Response, next: NextFunction): void {
+        const { refresh_token } = req.body
+
+        if (!refresh_token) {
+            return next(new AppError("Refresh token requerido.", 400))
+        }
+
+        const userData = this.tokenRepository.findByToken(refresh_token)
+        if (!userData) {
+            return next(
+                new AppError("Refresh token inválido o expirado.", 401),
+            )
+        }
+
+        try {
+            jwt.verify(refresh_token, REFRESH_SECRET)
+        } catch {
+            this.tokenRepository.delete(refresh_token)
+            return next(new AppError("Refresh token expirado.", 401))
+        }
+
+        this.tokenRepository.delete(refresh_token)
+
+        const payload = { ...userData, branch: "TEMUCO" as const }
+        const newAccessToken = jwt.sign(payload, SECRET, { expiresIn: "15m" })
+        const newRefreshToken = jwt.sign(payload, REFRESH_SECRET, {
+            expiresIn: "7d",
+        })
+
+        this.tokenRepository.save(newRefreshToken, {
+            id: userData.id,
+            email: userData.email,
+            role: userData.role,
+        })
+
+        res.status(200).json({
+            access_token: newAccessToken,
+            refresh_token: newRefreshToken,
+            token_type: "Bearer",
+            expires_in: 900,
+        })
+    }
+
+    logout(req: Request, res: Response, next: NextFunction): void {
+        const { refresh_token } = req.body
+        if (refresh_token) {
+            this.tokenRepository.delete(refresh_token)
+        }
+        res.status(200).json({ message: "Sesión cerrada exitosamente." })
+    }
 }

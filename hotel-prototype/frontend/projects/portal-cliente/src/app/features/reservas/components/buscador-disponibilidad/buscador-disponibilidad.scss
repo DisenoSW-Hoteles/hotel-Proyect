@@ -1,26 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
-
-// ───────────── DARK MODE ─────────────
-$bg: #1A1D24;
-$surface: #242830;
-$surface-2: #2D323E;
-$border: rgba(255, 255, 255, 0.08);
-$gold: #E5B869;
-$gold-hover: #F0CB7A;
-$gold-dim: rgba(229, 184, 105, 0.15);
-$text: #F0F2F5;
-$text-muted: #9BA3B0;
-$text-dim: #6B7380;
-$error: #FF5C5C;
-$error-dim: rgba(255, 92, 92, 0.12);
-
-// ───────────── PAGE SHELL ─────────────
 .buscador-page {
   width: 100%;
   min-height: 100vh;
-  background: $bg;
-  font-family: 'IBM Plex Sans', sans-serif;
-  color: $text;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .buscador-container {
@@ -29,25 +11,24 @@ $error-dim: rgba(255, 92, 92, 0.12);
   padding: 2rem 1.5rem 4rem;
 }
 
-// ───────────── HEADER ─────────────
 .page-header {
   display: flex;
   align-items: center;
   gap: 1.25rem;
   margin-bottom: 2.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid $border;
+  border-bottom: 1px solid var(--color-border);
 
   h1 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: $text;
+    color: var(--color-text);
     letter-spacing: -0.02em;
     margin: 0;
   }
 
   p {
-    color: $text-muted;
+    color: var(--color-text-muted);
     font-size: 0.875rem;
     margin: 0.125rem 0 0;
   }
@@ -56,24 +37,23 @@ $error-dim: rgba(255, 92, 92, 0.12);
 .header-icon {
   width: 52px;
   height: 52px;
-  background: $gold-dim;
-  border: 1px solid rgba(229, 184, 105, 0.3);
-  border-radius: 10px;
+  background: var(--color-gold-dim);
+  border: 1px solid rgba(212, 175, 92, 0.3);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $gold;
+  color: var(--color-gold);
   flex-shrink: 0;
 }
 
-// ───────────── CARD ─────────────
 .card {
-  background: $surface;
-  border: 1px solid $border;
-  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 2rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-md);
 }
 
 .card--empty {
@@ -84,11 +64,11 @@ $error-dim: rgba(255, 92, 92, 0.12);
     font-size: 1.125rem;
     font-weight: 600;
     margin: 1rem 0 0.5rem;
-    color: $text;
+    color: var(--color-text);
   }
 
   p {
-    color: $text-muted;
+    color: var(--color-text-muted);
     font-size: 0.9rem;
     max-width: 400px;
     margin: 0 auto;
@@ -96,10 +76,9 @@ $error-dim: rgba(255, 92, 92, 0.12);
 }
 
 .empty-icon {
-  color: $text-dim;
+  color: var(--color-text-dim);
 }
 
-// ───────────── FORM ─────────────
 .form-row {
   display: flex;
   gap: 1rem;
@@ -120,34 +99,34 @@ $error-dim: rgba(255, 92, 92, 0.12);
 label {
   font-size: 0.8rem;
   font-weight: 500;
-  color: $text-muted;
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
 .input {
   width: 100%;
-  background: $surface-2;
-  border: 1px solid $border;
-  border-radius: 6px;
-  color: $text;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
   font-family: inherit;
   font-size: 0.9375rem;
   padding: 0.65rem 0.875rem;
-  transition: border-color 200ms, box-shadow 200ms;
+  transition: border-color var(--transition), box-shadow var(--transition);
   outline: none;
   appearance: none;
   box-sizing: border-box;
 
   &:focus {
-    border-color: $gold;
-    box-shadow: 0 0 0 3px $gold-dim;
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px var(--color-gold-dim);
   }
 }
 
 select.input {
   padding-right: 2.5rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239BA3B0'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238891A4'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
   background-size: 1.25rem;
@@ -156,23 +135,22 @@ select.input {
 
 .field-error {
   font-size: 0.8rem;
-  color: $error;
+  color: var(--color-error);
 }
 
-// ───────────── BUTTONS ─────────────
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   padding: 0.65rem 1.5rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: all 200ms;
+  transition: all var(--transition);
   white-space: nowrap;
 
   &:disabled {
@@ -182,12 +160,12 @@ select.input {
 }
 
 .btn--primary {
-  background: $gold;
-  color: #11141A;
+  background: var(--color-gold);
+  color: var(--color-bg);
 
   &:hover:not(:disabled) {
-    background: $gold-hover;
-    box-shadow: 0 0 20px rgba(229, 184, 105, 0.25);
+    background: var(--color-gold-light);
+    box-shadow: var(--shadow-gold);
   }
 }
 
@@ -196,7 +174,6 @@ select.input {
   justify-content: center;
 }
 
-// ───────────── SPINNER ─────────────
 .spinner {
   width: 16px;
   height: 16px;
@@ -211,30 +188,28 @@ select.input {
   to { transform: rotate(360deg); }
 }
 
-// ───────────── ALERT ─────────────
 .alert {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
 }
 
 .alert--error {
-  background: $error-dim;
+  background: var(--color-error-dim);
   border: 1px solid rgba(255, 92, 92, 0.25);
   color: #FF8A8A;
 }
 
-// ───────────── RESULTS ─────────────
 .resultados {
   margin-top: 2rem;
 
   h3 {
     font-size: 0.85rem;
-    color: $text-muted;
+    color: var(--color-text-muted);
     margin-bottom: 1rem;
     font-weight: 500;
     text-transform: uppercase;
@@ -248,33 +223,32 @@ select.input {
   gap: 1rem;
 }
 
-// ───────────── ROOM CARD ─────────────
 .habitacion-card {
-  background: $surface;
-  border: 1px solid $border;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 200ms;
+  transition: all var(--transition);
   display: flex;
   flex-direction: column;
 
   &:hover {
-    border-color: rgba(229, 184, 105, 0.4);
+    border-color: rgba(212, 175, 92, 0.4);
     transform: translateY(-3px);
-    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--shadow-lg);
   }
 }
 
 .card-badge {
-  background: $gold-dim;
-  color: $gold;
+  background: var(--color-gold-dim);
+  color: var(--color-gold);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 0.5rem 1rem;
-  border-bottom: 1px solid $border;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .card-body {
@@ -287,13 +261,13 @@ select.input {
 .card-icon {
   width: 48px;
   height: 48px;
-  background: $surface-2;
-  border: 1px solid $border;
-  border-radius: 10px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $text-muted;
+  color: var(--color-text-muted);
   flex-shrink: 0;
 }
 
@@ -307,7 +281,7 @@ select.input {
   align-items: center;
   gap: 0.375rem;
   font-size: 0.8rem;
-  color: $text-muted;
+  color: var(--color-text-muted);
   margin-bottom: 0.375rem;
 
   svg { flex-shrink: 0; }
@@ -315,7 +289,7 @@ select.input {
 
 .card-desc {
   font-size: 0.875rem;
-  color: $text;
+  color: var(--color-text);
   line-height: 1.5;
   margin: 0;
 }
@@ -331,16 +305,107 @@ select.input {
 .card-precio {
   font-size: 1.3rem;
   font-weight: 700;
-  color: $gold;
+  color: var(--color-gold);
 
   small {
     font-size: 0.75rem;
     font-weight: 400;
-    color: $text-muted;
+    color: var(--color-text-muted);
   }
 }
 
-// ───────────── RESPONSIVE ─────────────
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.habitaciones-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  font-size: 0.9rem;
+
+  th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: var(--color-surface-2);
+    border-bottom: 1px solid var(--color-border);
+
+    &:last-child { text-align: center; }
+  }
+
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    cursor: pointer;
+    transition: background var(--transition);
+
+    &:hover {
+      background: var(--color-gold-dim);
+    }
+
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+}
+
+.tipo-badge {
+  display: inline-block;
+  background: var(--color-gold-dim);
+  color: var(--color-gold);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.capacidad-valor {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.desc-col {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  max-width: 260px;
+}
+
+.precio-col {
+  white-space: nowrap;
+}
+
+.precio-valor {
+  font-weight: 700;
+  color: var(--color-gold);
+  font-size: 1rem;
+}
+
+.precio-consulta {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.btn--sm {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+}
+
 @media (max-width: 640px) {
   .buscador-container {
     padding: 1rem 1rem 3rem;
@@ -358,7 +423,17 @@ select.input {
     max-width: none;
   }
 
-  .habitaciones-grid {
-    grid-template-columns: 1fr;
+  .table-wrapper {
+    border-radius: var(--radius-md);
+  }
+
+  .habitaciones-tabla {
+    th, td {
+      padding: 0.6rem 0.65rem;
+    }
+
+    .desc-col {
+      max-width: 120px;
+    }
   }
 }

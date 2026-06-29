@@ -60,16 +60,19 @@ export class FormularioReserva {
     this.error.set(null);
 
     const c = this.consulta()!;
+    const raw = this.form.getRawValue();
     const payload: CrearReservaDTO = {
       habitacionId: this.habitacion()!.id,
-      sucursalId: this.consulta()!.sucursalId,
-      fechaCheckIn: this.consulta()!.fechaCheckIn,
-      fechaCheckOut: this.consulta()!.fechaCheckOut,
-      cantidadHuespedes: this.consulta()!.cantidadHuespedes,
-      huespedNombre: this.form.getRawValue().huespedNombre,
-      huespedEmail: this.form.getRawValue().huespedEmail,
-      huespedTelefono: this.form.getRawValue().huespedTelefono,
-      servicios: this.form.getRawValue().servicios,
+      sucursalNombre: c.sucursalNombre,
+      fechaCheckIn: c.fechaCheckIn,
+      fechaCheckOut: c.fechaCheckOut,
+      cantidadHuespedes: c.cantidadHuespedes,
+      huespedNombre: raw.huespedNombre,
+      huespedEmail: raw.huespedEmail,
+      huespedTelefono: raw.huespedTelefono,
+      servicios: raw.servicios,
+      tipoDocumento: 'RUT',
+      documentoNum: raw.huespedEmail.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10).toUpperCase(),
     };
 
     this.disponibilidadService.crearReserva(payload).subscribe({

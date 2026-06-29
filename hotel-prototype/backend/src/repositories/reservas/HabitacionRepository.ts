@@ -1,8 +1,12 @@
-import { AppDataSource } from '../../config/database.js';
-import { Habitacion } from '../../models/entities/Habitacion.entity.js';
-import { ConsultaDisponibilidadDTO } from '../../models/dtos/Habitacion.dto.js';
+import { AppDataSource } from '../../config/database';
+import { Habitacion } from '../../models/entities/Habitacion.entity';
+import { ConsultaDisponibilidadDTO } from '../../models/dtos/Habitacion.dto';
 
 export const HabitacionRepository = AppDataSource.getRepository(Habitacion).extend({
+
+  async buscarTodas() {
+    return this.find();
+  },
 
   async buscarDisponibles(consulta: ConsultaDisponibilidadDTO) {
     const { fechaCheckIn, fechaCheckOut, cantidadHuespedes, sucursalNombre } = consulta;

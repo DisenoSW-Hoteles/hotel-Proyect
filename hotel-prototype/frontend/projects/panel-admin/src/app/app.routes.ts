@@ -4,7 +4,7 @@ import { authGuard } from './core/guards/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/admin/front-desk/check-in',
+    redirectTo: '/auth/login',
     pathMatch: 'full',
   },
   {

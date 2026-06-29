@@ -1,58 +1,98 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import swaggerUi from 'swagger-ui-express';
-import swaggerJsdoc from 'swagger-jsdoc';
+import express, { Application, Request, Response, NextFunction } from "express"
+import cors from "cors"
+import helmet from "helmet"
+import swaggerUi from "swagger-ui-express"
+import swaggerJsdoc from "swagger-jsdoc"
 
-// Importaciones Arquitectónicas
-import { AppError } from './utils/errors/AppError';
-import { errorHandler } from './middleware/error/errorHandler';
-import { HabitacionController } from './controllers/reservas/HabitacionController';
-import { AuthController } from './controllers/auth/AuthController'; // <-- Inyección del nuevo controlador
-import healthRoutes from './routes/healthRoutes';
+import { AppError } from "./utils/errors/AppError"
+import { errorHandler } from "./middleware/error/errorHandler"
+import { verificarToken, verificarRol } from "./middleware/auth/authMiddleware"
+import { HabitacionController } from "./controllers/reservas/HabitacionController"
+import { AuthController } from "./controllers/auth/AuthController"
+import { InMemoryTokenRepository } from "./repositories/InMemoryTokenRepository"
+import { InMemoryUserRepository } from "./repositories/InMemoryUserRepository"
+import { AuthService } from "./services/auth/AuthService"
+import { HabitacionService } from "./services/reservas/HabitacionService"
+import { ReservaService } from "./services/reservas/ReservaService"
+import { ReservaController } from "./controllers/reservas/ReservaController"
+import healthRoutes from "./routes/healthRoutes"
 
-export const app: Application = express();
+export const app: Application = express()
 
-// 1. Middlewares Globales
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(helmet())
+app.use(cors())
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-// 2. Swagger (Configuración Básica)
 const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: { title: 'Hotel API', version: '1.0.0' },
-  },
-  apis: ['./src/controllers/**/*.ts', './src/routes/**/*.ts'],
-};
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJsdoc(swaggerOptions)));
+    definition: {
+        openapi: "3.0.0",
+        info: { title: "Hotel API", version: "1.0.0" },
+    },
+    apis: ["./src/controllers/**/*.ts", "./src/routes/**/*.ts"],
+}
+app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerJsdoc(swaggerOptions)),
+)
 
-// 3. Inicialización de Controladores
-const habitacionCtrl = new HabitacionController();
-const authCtrl = new AuthController(); // <-- Instancia del nuevo controlador
+const tokenRepository = new InMemoryTokenRepository()
+const userRepository = new InMemoryUserRepository()
+const authService = new AuthService(userRepository, tokenRepository)
+const habitacionService = new HabitacionService()
+const habitacionCtrl = new HabitacionController(habitacionService)
+const authCtrl = new AuthController(authService, tokenRepository)
+const reservaService = new ReservaService()
+const reservaCtrl = new ReservaController(reservaService)
 
-// 4. Rutas de la API
-app.use('/api', healthRoutes); // Mantenemos la ruta de salud modular si tu compañero la necesita
+app.use("/api", healthRoutes)
 
-app.get('/api/admin/rooms', (req, res, next) =>
-  habitacionCtrl.obtenerTodas(req, res, next)
-);
+app.get(
+    "/api/admin/rooms",
+    verificarToken,
+    verificarRol("SUPER_ADMIN", "ADMIN"),
+    (req, res, next) => habitacionCtrl.obtenerTodas(req, res, next),
+)
 
-app.post('/api/habitaciones/disponibilidad', (req, res, next) =>
-  habitacionCtrl.buscarDisponibilidad(req, res, next)
-);
+app.post(
+    "/api/habitaciones/disponibilidad",
+    (req, res, next) => habitacionCtrl.buscarDisponibilidad(req, res, next),
+)
 
-// Endpoint de Autenticación para el Panel Administrativo
-app.post('/api/auth/login', (req, res, next) =>
-  authCtrl.login(req, res, next)
-);
+app.post("/api/auth/login", (req, res, next) =>
+    authCtrl.login(req, res, next),
+)
 
-// 5. Interceptor de Rutas Inexistentes (404)
-app.all('*', (req: Request, _res: Response, next: NextFunction) => {
-  next(new AppError(`No se puede encontrar la ruta ${req.originalUrl} en este servidor.`, 404));
-});
+app.post("/api/auth/refresh", (req, res, next) =>
+    authCtrl.refresh(req, res, next),
+)
 
-// 6. Interceptor Global de Errores
-app.use(errorHandler);
+app.post("/api/auth/logout", (req, res, next) =>
+    authCtrl.logout(req, res, next),
+)
+
+app.post("/api/reservas",
+    (req, res, next) => reservaCtrl.crearReserva(req, res, next),
+)
+
+app.get("/api/admin/reservations/by-guest/:documento",
+    verificarToken,
+    (req, res, next) => reservaCtrl.buscarPorDocumento(req, res, next),
+)
+
+app.get("/api/admin/reservations/by-code/:id",
+    verificarToken,
+    (req, res, next) => reservaCtrl.buscarPorId(req, res, next),
+)
+
+app.all("*", (req: Request, _res: Response, next: NextFunction) => {
+    next(
+        new AppError(
+            `No se puede encontrar la ruta ${req.originalUrl} en este servidor.`,
+            404,
+        ),
+    )
+})
+
+app.use(errorHandler)

@@ -5,8 +5,9 @@ import {
   TipoHabitacion
 } from '../../models/dtos/Habitacion.dto';
 import { AppError } from '../../utils/errors/AppError';
+import { IHabitacionService } from '../../interfaces/IHabitacionService';
 
-export class HabitacionService {
+export class HabitacionService implements IHabitacionService {
 
 async obtenerHabitacionesDisponibles(consulta: ConsultaDisponibilidadDTO): Promise<HabitacionDisponibleDTO[]> {
     // 0. PROGRAMACIÓN DEFENSIVA: Validamos que la sucursal exista antes de normalizar
@@ -16,13 +17,11 @@ async obtenerHabitacionesDisponibles(consulta: ConsultaDisponibilidadDTO): Promi
       throw new AppError('El nombre de la sucursal es obligatorio para buscar disponibilidad.', 400);
     }
 
-    if (consulta.sucursalNombre) {
     consulta.sucursalNombre = consulta.sucursalNombre
-    .toUpperCase()              // "viña del mar" -> "VIÑA DEL MAR"
-    .trim()                     // Quita espacios en los extremos
-    .replace(/\s+/g, '_')       // Reemplaza uno o más espacios por "_" -> "VIÑA_DEL_MAR"
-    .replace(/[^A-Z0-9_]/g, ''); // Elimina caracteres especiales como la Ñ o tildes si fuera necesario
-}
+        .toUpperCase()
+        .trim()
+        .replace(/\s+/g, "_")
+        .replace(/[^A-Z0-9_]/g, "")
     // 2. Pedir los ingredientes al Bodeguero
     const habitacionesCrudas = await HabitacionRepository.buscarDisponibles(consulta);
 

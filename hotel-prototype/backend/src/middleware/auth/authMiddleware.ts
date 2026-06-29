@@ -1,34 +1,61 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { AppError } from '../../utils/errors/AppError';
+import { Request, Response, NextFunction } from "express"
+import jwt from "jsonwebtoken"
+import { AppError } from "../../utils/errors/AppError"
 
-// Extendemos la interfaz Request de Express para poder inyectarle nuestro usuario
 export interface AuthRequest extends Request {
-  user?: any;
+    user?: any
 }
 
-export const verificarToken = (req: AuthRequest, res: Response, next: NextFunction) => {
-  // 1. Extraer el header de Autorización
-  const authHeader = req.headers.authorization;
+export const verificarToken = (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+) => {
+    const authHeader = req.headers.authorization
 
-  // Si no hay header o no empieza con "Bearer ", el guardia te detiene
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return next(new AppError('No estás autenticado. Por favor, inicia sesión.', 401));
-  }
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return next(
+            new AppError(
+                "No estás autenticado. Por favor, inicia sesión.",
+                401,
+            ),
+        )
+    }
 
-  // 2. Extraer solo el token (Ignorar la palabra "Bearer ")
-  const token = authHeader.split(' ')[1];
+    const token = authHeader.split(" ")[1]
 
-  try {
-    // 3. Verificar si la pulsera es real usando nuestra firma secreta
-    // IMPORTANTE: En producción, esto debe venir de process.env.JWT_SECRET
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secreto_super_seguro_desarrollo');
+    try {
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET || "secreto_super_seguro_desarrollo",
+        )
+        req.user = decoded
+        next()
+    } catch {
+        return next(new AppError("Token inválido o expirado.", 401))
+    }
+}
 
-    // 4. Si es válida, inyectamos los datos del usuario en la petición y le abrimos la puerta
-    req.user = decoded;
-    next();
-  } catch (error) {
-    // Si la verificación falla (token modificado o expirado), el guardia te saca
-    return next(new AppError('Token inválido o expirado.', 401));
-  }
-};
+export const verificarRol = (...rolesPermitidos: string[]) => {
+    return (req: AuthRequest, res: Response, next: NextFunction): void => {
+        if (!req.user) {
+            return next(
+                new AppError(
+                    "No autenticado. Debes iniciar sesión primero.",
+                    401,
+                ),
+            )
+        }
+
+        if (!rolesPermitidos.includes(req.user.role)) {
+            return next(
+                new AppError(
+                    `Acceso denegado. Se requiere rol: ${rolesPermitidos.join(" o ")}.`,
+                    403,
+                ),
+            )
+        }
+
+        next()
+    }
+}

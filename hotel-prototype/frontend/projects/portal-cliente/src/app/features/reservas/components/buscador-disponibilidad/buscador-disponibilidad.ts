@@ -12,7 +12,7 @@ const SUCURSAL_LABELS: Record<Sucursal, string> = {
   [Sucursal.Temuco]: 'Temuco',
   [Sucursal.Pucon]: 'Pucón',
   [Sucursal.Santiago]: 'Santiago',
-  [Sucursal.VinaDelMar]: 'Viña del Mar',
+  [Sucursal.Vina_Del_Mar]: 'Viña del Mar',
 };
 
 @Component({
@@ -38,7 +38,7 @@ export class BuscadorDisponibilidad {
 
   readonly form = this.fb.nonNullable.group({
     sucursalId: ['' as Sucursal, Validators.required],
-    fechaCheckIn: ['', Validators.required],
+    fechaCheckIn: ['', [Validators.required, fechaCheckInNoPasada()]],
     fechaCheckOut: ['', Validators.required],
     cantidadHuespedes: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
   }, { validators: fechasValidator });

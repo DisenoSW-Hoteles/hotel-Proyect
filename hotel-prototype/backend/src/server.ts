@@ -1,14 +1,9 @@
 import 'reflect-metadata';
-// 1. Importación con llaves (Named Import) para coincidir con app.ts
-import { app } from './app';
-import { AppDataSource } from './config/database';
-import dotenv from 'dotenv';
+import { app } from './infrastructure/http/app';
+import { AppDataSource } from './infrastructure/config/database';
+import { env } from './infrastructure/config/environment';
 
-// Cargamos el .env antes de inicializar cualquier cosa
-dotenv.config();
-
-// Definimos el puerto desde la bóveda, con un fallback de seguridad
-const PORT = process.env.PORT || 3000;
+const PORT = env.port;
 
 AppDataSource.initialize()
   .then(() => {

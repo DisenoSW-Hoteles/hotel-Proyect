@@ -8,7 +8,7 @@
         <select id="sucursal" formControlName="sucursalNombre">
           <option value="">Selecciona una sucursal</option>
           @for (s of sucursales; track s) {
-            <option [value]="s">{{ s }}</option>
+            <option [value]="s">{{ etiquetasSucursal[s] ?? s }}</option>
           }
         </select>
         @if (f.sucursalNombre.touched && f.sucursalNombre.invalid) {
@@ -18,7 +18,7 @@
 
       <div class="form-group">
         <label for="checkIn">Check-in</label>
-        <input id="checkIn" type="date" formControlName="fechaCheckIn" />
+        <input id="checkIn" type="date" formControlName="fechaCheckIn" [min]="hoy" />
         @if (f.fechaCheckIn.touched && f.fechaCheckIn.invalid) {
           <span class="error-text">Fecha requerida</span>
         }
@@ -26,7 +26,12 @@
 
       <div class="form-group">
         <label for="checkOut">Check-out</label>
-        <input id="checkOut" type="date" formControlName="fechaCheckOut" />
+        <input
+          id="checkOut"
+          type="date"
+          formControlName="fechaCheckOut"
+          [min]="f.fechaCheckIn.value || hoy"
+        />
         @if (f.fechaCheckOut.touched && f.fechaCheckOut.invalid) {
           <span class="error-text">Fecha requerida</span>
         }
@@ -40,6 +45,12 @@
         }
       </div>
     </div>
+
+    @if (form.hasError('rangoFechas') && f.fechaCheckOut.touched) {
+      <div class="error-mensaje" style="margin-top: 1.25rem">
+        El check-out debe ser posterior al check-in.
+      </div>
+    }
 
     <button type="submit" [disabled]="form.invalid || loading()" class="btn-primary">
       @if (loading()) {

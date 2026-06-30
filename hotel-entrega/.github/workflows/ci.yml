@@ -1,0 +1,73 @@
+name: CI - Backend (Lint, Format, Test, Sonar)
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Calidad de código y pruebas
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    defaults:
+      run:
+        working-directory: hotel-prototype/backend
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          # Profundidad completa para que SonarCloud analice el historial (blame).
+          fetch-depth: 0
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: hotel-prototype/backend/package-lock.json
+
+      - name: Instalar dependencias (reproducible)
+        run: npm ci
+
+      # ---------- Lint ----------
+      - name: Lint (ESLint)
+        run: npm run lint
+
+      # ---------- Format ----------
+      - name: Format (Prettier --check)
+        run: npm run format
+
+      # ---------- Testing (unitarios + integración + E2E API) ----------
+      - name: Tests + cobertura
+        run: npm run test:cov
+
+      # ---------- Build ----------
+      - name: Compilación TypeScript
+        run: npm run build
+
+      - name: Publicar reporte de cobertura como artefacto
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: hotel-prototype/backend/coverage/
+
+      # ---------- SonarQube (self-hosted UCT) ----------
+      # Solo se ejecuta si el secreto SONAR_TOKEN está configurado en el repo.
+      - name: Análisis SonarQube
+        if: ${{ env.SONAR_TOKEN != '' }}
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarqube.inf.uct.cl
+        with:
+          # sonar-project.properties está en la raíz del repositorio.
+          projectBaseDir: .

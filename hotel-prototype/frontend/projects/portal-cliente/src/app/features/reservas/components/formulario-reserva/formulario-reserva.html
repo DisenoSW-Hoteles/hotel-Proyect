@@ -9,7 +9,20 @@
         <div class="detalle"><span>Habitación:</span> {{ reserva.tipoHabitacion }}</div>
         <div class="detalle"><span>Check-in:</span> {{ reserva.fechaCheckIn }}</div>
         <div class="detalle"><span>Check-out:</span> {{ reserva.fechaCheckOut }}</div>
-        <div class="detalle"><span>Total estimado:</span> ${{ reserva.totalEstimado | number }}</div>
+        <div class="detalle">
+          <span>{{ reserva.noches }} noche(s) × ${{ reserva.precioPorNoche | number }}</span>
+          ${{ reserva.precioPorNoche * reserva.noches | number }}
+        </div>
+        @if (reserva.totalEstimado - reserva.precioPorNoche * reserva.noches > 0) {
+          <div class="detalle">
+            <span>Servicios adicionales</span>
+            ${{ reserva.totalEstimado - reserva.precioPorNoche * reserva.noches | number }}
+          </div>
+        }
+        <div class="detalle detalle-total">
+          <span>Total estimado</span>
+          <strong>${{ reserva.totalEstimado | number }}</strong>
+        </div>
       </div>
       <button (click)="nuevaReserva()" class="btn-primary">Nueva Reserva</button>
     </div>

@@ -1,0 +1,126 @@
+<div class="rooms-wrapper">
+
+  <header class="page-header">
+    <div class="header-icon"><span class="material-icons">meeting_room</span></div>
+    <div>
+      <h1>Habitaciones</h1>
+      <p>Gestión de habitaciones y tarifas</p>
+    </div>
+  </header>
+
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <form [formGroup]="filterForm" novalidate>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="branch">Sucursal</label>
+          <select id="branch" formControlName="branch" class="input" (change)="onFilterChange()">
+            <option *ngFor="let b of branches" [value]="b.value">{{ b.label }}</option>
+          </select>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <ng-container *ngIf="roomState$ | async as state">
+    <div *ngIf="state.isLoading" class="alert alert--warning">
+      <span class="spinner"></span> Cargando habitaciones...
+    </div>
+    <div *ngIf="state.error" class="alert alert--error" role="alert">
+      <span class="material-icons">error_outline</span>
+      {{ state.error }}
+    </div>
+  </ng-container>
+
+  <div class="card">
+    <ng-container *ngIf="rooms$ | async as rooms">
+      <div *ngIf="rooms.length === 0 && !(roomState$ | async)?.isLoading"
+           style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
+        <span class="material-icons" style="font-size: 3rem; display: block; margin-bottom: 0.5rem;">search_off</span>
+        No hay habitaciones con los filtros actuales.
+      </div>
+
+      <div *ngFor="let room of rooms" class="companion-card" style="cursor: default;">
+        <div class="companion-card__header">
+          <span class="material-icons">{{ room.status === 'AVAILABLE' ? 'meeting_room' : 'no_meeting_room' }}</span>
+          <h4>
+            Habitación {{ room.number }}
+            <span style="font-weight: 400; color: var(--color-text-muted); font-size: 0.85em;">
+              — Piso {{ room.floor }} · {{ room.type }}
+            </span>
+          </h4>
+          <span class="badge" [ngClass]="getRoomStatusClass(room.status)" style="margin-left: auto;">
+            {{ room.status }}
+          </span>
+          <button type="button" class="btn btn--secondary"
+            style="margin-left: 0.75rem; padding: 0.375rem 0.75rem; font-size: 0.8rem;"
+            (click)="openRateModal(room)">
+            <span class="material-icons" style="font-size: 1rem;">edit</span>
+            Tarifa
+          </button>
+        </div>
+
+        <div class="form-row" style="margin-bottom: 0;">
+          <div style="font-size: 0.875rem; color: var(--color-text-muted);">
+            <span class="material-icons" style="font-size: 1rem; vertical-align: middle;">people</span>
+            Capacidad: {{ room.capacity }} personas
+          </div>
+          <div style="font-size: 0.875rem; color: var(--color-text-muted); margin-left: 1.5rem;">
+            <span class="material-icons" style="font-size: 1rem; vertical-align: middle;">location_on</span>
+            {{ room.branch }}
+          </div>
+          <div style="margin-left: auto; font-size: 1rem; font-weight: 600; color: var(--color-gold);">
+            ${{ room.baseRate | number:'1.0-0' }} CLP/noche
+          </div>
+        </div>
+
+        <div *ngIf="room.amenities.length" style="margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.375rem;">
+          <span *ngFor="let amenity of room.amenities"
+            style="font-size: 0.75rem; background: var(--color-surface-2); border: 1px solid var(--color-border);
+                   border-radius: 999px; padding: 0.125rem 0.625rem; color: var(--color-text-muted);">
+            {{ amenity }}
+          </span>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- MODAL: EDITAR TARIFA -->
+  <div *ngIf="showRateModal"
+    style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex;
+           align-items: center; justify-content: center; z-index: 1000; padding: 1rem;"
+    (click)="closeModal()" role="dialog" aria-modal="true">
+    <div class="card" style="max-width: 480px; width: 100%; margin: 0;" (click)="$event.stopPropagation()">
+      <h2 class="card__title">Actualizar Tarifa — Habitación {{ editingRoom?.number }}</h2>
+      <form [formGroup]="rateForm" novalidate>
+        <div class="form-field" style="margin-bottom: 1rem;">
+          <label for="baseRate">Tarifa Base (CLP/noche) *</label>
+          <input id="baseRate" type="number" formControlName="baseRate" class="input"
+            [class.input--error]="rateForm.get('baseRate')?.invalid && rateForm.get('baseRate')?.touched"
+            placeholder="Ej: 85000" step="1000" />
+          <span *ngIf="rateForm.get('baseRate')?.errors?.['required'] && rateForm.get('baseRate')?.touched" class="field-error">Requerido</span>
+          <span *ngIf="rateForm.get('baseRate')?.errors?.['notMultipleOf1000']" class="field-error">La tarifa debe ser múltiplo de $1.000</span>
+          <span *ngIf="rateForm.get('baseRate')?.errors?.['min']" class="field-error">Mínimo $1.000 CLP</span>
+        </div>
+        <div class="form-field" style="margin-bottom: 1rem;">
+          <label for="effectiveFrom">Vigencia desde *</label>
+          <input id="effectiveFrom" type="date" formControlName="effectiveFrom" class="input" />
+        </div>
+        <div class="form-field" style="margin-bottom: 1.5rem;">
+          <label for="reason">Motivo del cambio</label>
+          <input id="reason" type="text" formControlName="reason" class="input"
+            placeholder="Ej: Temporada alta, ajuste anual..." />
+        </div>
+      </form>
+      <div class="card__footer">
+        <button type="button" class="btn btn--ghost" (click)="closeModal()">Cancelar</button>
+        <button type="button" class="btn btn--primary" (click)="onSaveRate()"
+          [disabled]="(roomState$ | async)?.isSaving">
+          <span *ngIf="(roomState$ | async)?.isSaving" class="spinner"></span>
+          <span class="material-icons" *ngIf="!(roomState$ | async)?.isSaving">save</span>
+          Guardar Tarifa
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

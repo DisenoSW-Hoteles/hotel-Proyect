@@ -1,1 +1,19 @@
-<router-outlet></router-outlet>
+<div class="portal-shell">
+  <header class="portal-header">
+    <a class="brand" routerLink="/reservas/buscar">
+      <span class="brand-mark">✦</span>
+      <span class="brand-name">Hotelería <strong>Centralizada</strong></span>
+    </a>
+    <nav class="portal-nav">
+      <a routerLink="/reservas/buscar">Reservar</a>
+    </nav>
+  </header>
+
+  <main class="portal-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="portal-footer">
+    © 2026 Cadena Hotelera · Temuco · Pucón · Santiago · Viña del Mar
+  </footer>
+</div>

@@ -1,1 +1,188 @@
-/* You can add global styles to this file, and also import other style files */
+/* =============================================================================
+   HOTEL — PORTAL DE CLIENTES · DESIGN SYSTEM
+   Estética coherente con el panel-admin: "Luxury" — slate profundo + oro cálido.
+   Tipografía: IBM Plex Sans.
+   ============================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap');
+
+:root {
+  --color-bg: #0f1117;
+  --color-bg-2: #141824;
+  --color-surface: #1a1e2a;
+  --color-surface-2: #242838;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-focus: rgba(212, 175, 92, 0.6);
+
+  --color-gold: #d4af5c;
+  --color-gold-light: #e8c97a;
+  --color-gold-dim: rgba(212, 175, 92, 0.15);
+
+  --color-text: #e8eaf0;
+  --color-text-muted: #8891a4;
+  --color-text-dim: #5a6272;
+
+  --color-success: #3ecf8e;
+  --color-error: #ff5c5c;
+  --color-error-dim: rgba(255, 92, 92, 0.12);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-gold: 0 0 24px rgba(212, 175, 92, 0.18);
+
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #1b2030 0%, transparent 60%),
+    var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+a {
+  color: var(--color-gold-light);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+a:hover {
+  color: var(--color-gold);
+}
+
+/* ── Controles de formulario (globales) ── */
+label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.4rem;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input::placeholder {
+  color: var(--color-text-dim);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px var(--color-gold-dim);
+}
+
+select option {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+input[type='date'] {
+  color-scheme: dark;
+}
+
+/* ── Botones ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.6rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #1a1300;
+  background: linear-gradient(135deg, var(--color-gold-light), var(--color-gold));
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-gold);
+}
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+.btn-link:hover {
+  color: var(--color-gold);
+}
+
+.error-text {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--color-error);
+}
+
+.error-mensaje {
+  padding: 0.8rem 1rem;
+  background: var(--color-error-dim);
+  border: 1px solid rgba(255, 92, 92, 0.3);
+  border-radius: var(--radius-sm);
+  color: #ffb3b3;
+  font-size: 0.9rem;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-2);
+  border-radius: 10px;
+}

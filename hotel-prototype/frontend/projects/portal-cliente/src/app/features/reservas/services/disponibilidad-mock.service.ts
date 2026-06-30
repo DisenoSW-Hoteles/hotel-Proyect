@@ -41,6 +41,8 @@ export class DisponibilidadMockService implements IDisponibilidadService {
       huespedEmail: reserva.huespedEmail,
       huespedTelefono: reserva.huespedTelefono,
       servicios: reserva.servicios,
+      precioPorNoche: habitacion?.precioPorNoche ?? 0,
+      noches,
       totalEstimado,
       fechaCreacion: new Date().toISOString(),
     };

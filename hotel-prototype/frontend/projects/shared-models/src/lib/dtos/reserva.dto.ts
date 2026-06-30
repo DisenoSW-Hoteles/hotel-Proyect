@@ -14,6 +14,8 @@ export interface ReservaDTO {
   huespedEmail: string;
   huespedTelefono: string;
   servicios: TipoServicio[];
+  precioPorNoche: number;
+  noches: number;
   totalEstimado: number;
   fechaCreacion: string;
 }

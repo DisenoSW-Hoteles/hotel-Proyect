@@ -7,6 +7,6 @@ export const environment = {
   apiBaseUrl: '/api',
 
   // true  → login sin backend (UI funciona sin que el backend esté listo)
-  // false → llama a POST /api/auth/login  ← cambiar cuando el backend esté listo
-  mockAuth: true,
+  // false → llama a POST /api/auth/login (backend real)  ← demo integrada
+  mockAuth: false,
 };
